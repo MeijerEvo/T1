@@ -273,11 +273,11 @@ function onMessage(event) {
         if (key == "programPosValue") {
             
             //Find text depending on index
-            for (var i = 0; i < soundCommands.length; ++i) {
+            for (var j = 0; j < soundCommands.length; ++j) {
 
                 //Filter out the program ID 
-                if (soundCommands[i].index == myObj[key]) {
-                    document.getElementById("currVoiceCommand").innerHTML = soundCommands[i].name;
+                if (soundCommands[j].index == myObj[key]) {
+                    document.getElementById("currVoiceCommand").innerHTML = soundCommands[j].name;
                 }
             }
             
