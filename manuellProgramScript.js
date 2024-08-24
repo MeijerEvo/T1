@@ -163,6 +163,69 @@ function updateSlider(element) {
     websocket.send(sliderNumber+"s"+sliderValue.toString());
 }
 
+function front() {
+    //Front
+    
+     //Check lane boxes
+    if (document.getElementById('lane1').checked == false && document.getElementById('lane2').checked == false)  { 
+        alert("Du måste välja minst en bana");
+    } else {
+        
+        //Check if pump is active
+        if (pump == false && workMode == 0) {
+            alert("Starta hydraulpumpen innan vridning av vändställ");
+        } else {
+
+            //Check what lanes are activated
+            if (document.getElementById('lane1').checked) {
+                var lane1 = "1";
+            } else {
+                var lane1 = "0";
+            }
+
+            if (document.getElementById('lane2').checked) {
+                var lane2 = "1";
+            } else {
+                var lane2 = "0";
+            }
+
+            websocket.send("front" + lane1 + lane2); 
+        }
+    }
+}
+
+function rear() {
+    //Rear
+    
+     //Check lane boxes
+    if (document.getElementById('lane1').checked == false && document.getElementById('lane2').checked == false)  { 
+        alert("Du måste välja minst en bana");
+    } else {
+    
+        //Check if pump is active
+        if (pump == false && workMode == 0) {
+            alert("Starta hydraulpumpen innan vridning av vändställ");
+        } else {
+
+            //Check what lanes are activated
+            if (document.getElementById('lane1').checked) {
+                var lane1 = "1";
+            } else {
+                var lane1 = "0";
+            }
+
+            if (document.getElementById('lane2').checked) {
+                var lane2 = "1";
+            } else {
+                var lane2 = "0";
+            }
+
+            websocket.send("rear" + lane1 + lane2); 
+        }
+    }    
+}
+
+
 function onMessage(event) {
     console.log(event.data);
     
@@ -263,7 +326,39 @@ function onMessage(event) {
             }   
         }
         
-
+        //Pump
+        if (key == "pump") {
+            //Pump button
+            if (myObj[key] > 0)  {
+                //Pump is on
+                pump = true;
+            } else {
+                //Pump is off
+                pump = false;
+            }   
+        }
+        
+          //Work mode
+        if (key == "workMode") {
+            //Work mode
+            if (myObj[key] == 0) {
+                //Hydraulic
+                workMode = 0;           
+            }
+            
+            if (myObj[key] == 1) {
+                //Pnenumatic
+                workMode = 1;
+            }
+            
+            if (myObj[key] == 2) {
+                //Lights
+                workMode = 2;
+           }
+            
+            
+             
+        } 
 
         
         
