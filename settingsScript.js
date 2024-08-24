@@ -404,6 +404,21 @@ function reboot() {
 
 }
 
+function SWUpdate() {
+    //SW update
+    
+    //Ask user
+    if (confirm("Vill du uppdatera mjukvaran i T1 Gateway? Det måste finnas en WIFI-anslutningspunkt med internetanslutning i närheten av T1 Gateway. Efter att ha valt 'OK' kommer T1 Gateway bekräfta genom att tända upp alla tre lysdioderna på frontpanelen. Detta gränssnitt kommer att sluta att svara. Gå sedan till webläsaren och ange '192.168.4.1:100' för att nå uppdateringssidan. Tid för uppdateringen är under 5 minuter.")) {
+        
+        //Update
+        websocket.send("SWUpdate");
+    
+    } else {
+        //User chooses NO
+    }
+
+}
+
 function intro() {
     
 
