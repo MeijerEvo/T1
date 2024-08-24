@@ -269,6 +269,23 @@ function onMessage(event) {
             }   
         }
         
+        //Present sound command via text for user
+        if (key == "programPosValue") {
+            
+            //Find text depending on index
+            for (var i = 0; i < soundCommands.length; ++i) {
+
+                //Filter out the program ID 
+                if (soundCommands[i].index == myObj[key]) {
+                    document.getElementById("currVoiceCommand").innerHTML = soundCommands[i].name;
+                }
+            }
+            
+            
+        }
+        
+        
+        
         
         
     }
@@ -480,8 +497,59 @@ function nextProgram() {
     
 }   
 
+const soundCommands = [
+    
+    //Sound commands
+    { index: 'A', text: 'BANAN ÄR ÖPPEN'},
+    { index: 'B', text: 'FÖRBEREDELSETID START'},
+    { index: 'C', text: 'FÖRBEREDELSETID STOPP'},
+    { index: 'D', text: 'PROVSERIE'},
+    { index: 'E', text: 'SERIE 1'},
+    { index: 'F', text: 'SERIE 2'},
+    { index: 'G', text: 'SERIE 3'},
+    { index: 'H', text: 'SERIE 4'},
+    { index: 'I', text: 'SERIE 5'},
+    { index: 'J', text: 'SERIE 6'},
+    { index: 'K', text: 'SERIE 7'},
+    { index: 'L', text: 'SERIE 8'},
+    { index: 'M', text: 'SERIE 9'},
+    { index: 'N', text: 'SERIE 10'},
+    
 
-
+  //O = "LADDA"
+  //P = "FÄRDIGA"   
+  //Q = "ELD"
+  //R = "ELD UPPHÖR"
+  //S = "PATRON UR, PROPPA OCH LÄGG NER VAPNET"
+  //T = "VISITATION"
+  //U = "SEKUNDER"
+  //V = "SERIE"
+  //Z = "ALLA KLARA?"
+  //a = "10 SEKUNDER KVAR"
+  //b = "NÅGRA FUNKTIONERINGSFEL?"
+  //c = "4"
+  //d = "6"
+  //e = "8"
+  //f = "10"
+  //g = "12"
+  //h = "14"
+  //i = "16"
+  //j = "20"
+  //k = "150"
+  //l = "FÖRBEREDELSETID BÖRJAR NU"
+  //m = "STOPP, PATRON UR"
+  //n = "FÖR FÖRSTA TÄVLINGSERIE - LADDA"
+  //o = "FÖR NÄSTA TÄVLINGSERIE - LADDA"
+  //p = "FÖR PROVSERIE - LADDA"
+  //q = "PATRON UR, PROPPA VAPEN"
+  //r = "START"
+  //s = "ELD UPPHÖR (UTDRAGET UNDER 3 SEK)"
+  //t = "150 SEK SERIE LADDA"
+  //u = "20 SEK SERIE LADDA"
+  //v = "10 SEK SERIE LADDA"
+  //z = "SÄRSKJUTNING"
+  //w = "KOMPLETTERINGSSERIE"
+];
 
 const programs = [
     
