@@ -269,21 +269,7 @@ function onMessage(event) {
             }   
         }
         
-        //Present sound command via text for user
-        if (key == "programPosValue") {
-            
-            //Find text depending on index
-            for (var j = 0; j < soundCommands.length; ++j) {
 
-                //Filter out the program ID 
-                if (soundCommands[j].index == myObj[key]) {
-                    document.getElementById("currVoiceCommand").innerHTML = soundCommands[j].name;
-                }
-            }
-            
-            
-        }
-        
         
         
         
@@ -514,41 +500,40 @@ const soundCommands = [
     { index: 'L', text: 'SERIE 8'},
     { index: 'M', text: 'SERIE 9'},
     { index: 'N', text: 'SERIE 10'},
-    
+    { index: 'O', text: 'LADDA'},
+    { index: 'P', text: 'FÄRDIGA'},
+    { index: 'Q', text: 'ELD'},
+    { index: 'R', text: 'ELD UPPHÖR'},
+    { index: 'S', text: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
+    { index: 'T', text: 'VISITATION'},
+    { index: 'U', text: 'SEKUNDER'},
+    { index: 'V', text: 'SERIE'},
+    { index: 'Z', text: 'ALLA KLARA?'},
+    { index: 'a', text: '10 SEKUNDER KVAR'},
+    { index: 'b', text: 'NÅGRA FUNKTIONERINGSFEL?'},
+    { index: 'c', text: '4'},
+    { index: 'd', text: '6'},
+    { index: 'e', text: '8'},
+    { index: 'f', text: '10'},
+    { index: 'g', text: '12'},
+    { index: 'h', text: '14'},
+    { index: 'i', text: '16'},
+    { index: 'j', text: '20'},
+    { index: 'k', text: '150'},
+    { index: 'l', text: 'FÖRBEREDELSETID BÖRJAR NU'},
+    { index: 'm', text: 'STOPP, PATRON UR'},
+    { index: 'n', text: 'FÖR FÖRSTA TÄVLINGSERIE - LADDA'},
+    { index: 'o', text: 'FÖR NÄSTA TÄVLINGSERIE - LADDA'},
+    { index: 'p', text: 'FÖR PROVSERIE - LADDA'},
+    { index: 'q', text: 'PATRON UR, PROPPA VAPEN'},
+    { index: 'r', text: 'START'},
+    { index: 's', text: 'ELD UPPHÖR (UTDRAGET UNDER 3 SEK)'},
+    { index: 't', text: '150 SEK SERIE LADDA'},
+    { index: 'u', text: '20 SEK SERIE LADDA'},
+    { index: 'v', text: '10 SEK SERIE LADDA'},
+    { index: 'z', text: 'SÄRSKJUTNING'},
+    { index: 'w', text: 'KOMPLETTERINGSSERIE'},
 
-  //O = "LADDA"
-  //P = "FÄRDIGA"   
-  //Q = "ELD"
-  //R = "ELD UPPHÖR"
-  //S = "PATRON UR, PROPPA OCH LÄGG NER VAPNET"
-  //T = "VISITATION"
-  //U = "SEKUNDER"
-  //V = "SERIE"
-  //Z = "ALLA KLARA?"
-  //a = "10 SEKUNDER KVAR"
-  //b = "NÅGRA FUNKTIONERINGSFEL?"
-  //c = "4"
-  //d = "6"
-  //e = "8"
-  //f = "10"
-  //g = "12"
-  //h = "14"
-  //i = "16"
-  //j = "20"
-  //k = "150"
-  //l = "FÖRBEREDELSETID BÖRJAR NU"
-  //m = "STOPP, PATRON UR"
-  //n = "FÖR FÖRSTA TÄVLINGSERIE - LADDA"
-  //o = "FÖR NÄSTA TÄVLINGSERIE - LADDA"
-  //p = "FÖR PROVSERIE - LADDA"
-  //q = "PATRON UR, PROPPA VAPEN"
-  //r = "START"
-  //s = "ELD UPPHÖR (UTDRAGET UNDER 3 SEK)"
-  //t = "150 SEK SERIE LADDA"
-  //u = "20 SEK SERIE LADDA"
-  //v = "10 SEK SERIE LADDA"
-  //z = "SÄRSKJUTNING"
-  //w = "KOMPLETTERINGSSERIE"
 ];
 
 const programs = [

@@ -118,6 +118,21 @@ html {
     box-shadow: 5px 5px #666;
    }
 
+  .buttonSmall { 
+    background-color: #F78702;
+    font-family: Impact, Arial, Helvetica, sans-serif;
+    border: none;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    width: 30%;
+    border-radius: 4px;
+    box-shadow: 5px 5px #666;
+   }
+
     .buttonRed { 
     background-color: red;
     font-family: Impact, Arial, Helvetica, sans-serif;
