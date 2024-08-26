@@ -1,0 +1,53 @@
+<!-- T1 Gateway / -->
+<!-- Ver 4.1 / -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>SYSTEM T1 DASHBOARD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body onload="startProgramLoad()">
+
+<div class="content">
+    <div class="card-grid">
+        <div class="card">
+            <p class="card-title" id="programTitle">Program</p>
+          
+
+            <table class="programsTable" id="programsTable"></table>
+            <p class="switch"><input type="button" class="buttonGreen" id="text" value="TEXT" onclick="showText()"></p> 
+            <p class="switch">
+                <progress id="preProgramProgress" value="0" max="100"> 0% </progress>
+            </p> 
+
+            <p class="programTimer" id="preProgramTimerTime">--</p>
+                <p class="switch"><input type="button" class="button" value="STARTA PROGRAM" onclick="preProgramStartStop()" id="preProgramStartStopButton"></p>
+                <p class="switch"><input type="button" class="button" onclick="nextProgram()" value="NÄSTA PROGRAM >" id="nextPrgram"></p> 
+                <p class="switch"><input type="button" class="button" onclick="preProgramExtra()" value="EXTRA" id="preProgramExtra"></p> 
+                <p class="switch"><input type="button" class="buttonRed" onclick="markera()" value="MARKERA" id="markera"></p>
+                <p class="version" id="latestProgram" ></p>
+                <p class="switch"><input type="button" class="buttonGreen" value="HEM" onclick="location.href='index.html'"></p> 
+            
+                <br><br />
+            
+                <form>
+                  <input type="checkbox" class="largerCheckbox" id="lane1" onclick="lane1Checked()" name="lane1" checked="true">
+                  <label for="lane1" class="switch" > Bana 1</label>
+                  <input type="checkbox" class="largerCheckbox" id="lane2" onclick="lane2Checked()" name="lane2" checked="true">
+                  <label for="lane2" class="switch" > Bana 2</label><br>
+                </form>
+            
+                <br><br />
+        </div>
+    </div>
+</div>
+<p class="version" id="versionText" ></p>
+<br><br />
+<script src="startProgramScript.js"></script>
+</body>
+</html>
