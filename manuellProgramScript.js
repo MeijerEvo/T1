@@ -297,7 +297,7 @@ function onMessage(event) {
                 document.getElementById("programTimerTime").innerHTML = 0;
                 
                 document.getElementById("programStartStopButton").value = "STARTA PROGRAM";
-                document.getElementById("programStartStopButton").style.backgroundColor = '#F78702';
+                document.getElementById("programStartStopButton").style.backgroundColor = '#32612D';
                 
                 //Reset progress bar
                 const progress = document.getElementById("programProgress");

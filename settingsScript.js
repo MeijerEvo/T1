@@ -146,7 +146,7 @@ function onMessage(event) {
                 //Pump is off
                 pump = false;
                 document.getElementById("pumpStartStopButton").value = "STARTA";
-                document.getElementById("pumpStartStopButton").style.backgroundColor = '#F78702'; 
+                document.getElementById("pumpStartStopButton").style.backgroundColor = '#32612D'; 
                 
                 pumpMaxTimer = false;
                 
@@ -170,7 +170,7 @@ function onMessage(event) {
                 //Illumination is off
                 illum = false;
                 document.getElementById("illuminationStartStopButton").value = "STARTA";
-                document.getElementById("illuminationStartStopButton").style.backgroundColor = '#F78702'; 
+                document.getElementById("illuminationStartStopButton").style.backgroundColor = '#32612D'; 
             }
         }  
          
@@ -187,7 +187,7 @@ function onMessage(event) {
                 //Member
                 leader = false;
                 document.getElementById("network").value = "Aktivera LEADER";
-                document.getElementById("network").style.backgroundColor = '#F78702';
+                document.getElementById("network").style.backgroundColor = '#32612D';
             }
         }  
         

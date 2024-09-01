@@ -44,12 +44,12 @@
                 <p class="programTimer" id="programTimerTime">--</p>
                 
                 <p class="switch">          
-                    <input type="button" class="button" value="Start" onclick="programStartStop()" id="programStartStopButton">
+                    <input type="button" class="button" value="START" onclick="programStartStop()" id="programStartStopButton">
                 </p>   
                 
                 
                 <p class="switch">
-                    <input type="button" class="button" onclick="resetSliders()" value="Nollställ" id="resetSliders">
+                    <input type="button" class="button" onclick="resetSliders()" value="NOLLSTÄLL" id="resetSliders">
                 </p> 
                 
                  <p class="switch">
@@ -61,17 +61,28 @@
              
                 
                 
-                <p class="switch"><input type="button" class="buttonGreen" value="HEM" onclick="location.href='index.html'"></p> 
-                <br><br />
+                 <br><br />
                 
                 <form>
-                    <input type="checkbox" class="largerCheckbox" id="lane1" onclick="lane1Checked()" name="lane1" checked="true">
-                    <label for="lane1" class="switch" > Bana 1</label>
-                    <input type="checkbox" class="largerCheckbox" id="lane2" onclick="lane2Checked()" name="lane2" checked="true">
-                    <label for="lane2" class="switch" > Bana 2</label>
-                    <input type="checkbox" class="largerCheckbox" id="sliderLock" onclick="sliderLockChecked()" name="sliderLock" checked="false">
-                    <label for="sliderLock" class="switch" >Lås</label><br>
+                   <label class="container">Bana vänster 
+                    <input type="checkbox" id="lane1" onclick="lane1Checked()">
+                    <span class="checkmark"></span>
+                    </label>
+
+                    <label class="container"> Bana höger 
+                    <input type="checkbox" id="lane2" onclick="lane2Checked()">
+                    <span class="checkmark"></span>
+                    </label>
+                    
+                    <label class="container"> Lås
+                    <input type="checkbox" id="sliderLock" onclick="sliderLockChecked()">
+                    <span class="checkmark"></span>
+                    </label>
+                    
                 </form>
+                
+                   <p class="switch"><input type="button" class="buttonSmall" value="HEM" onclick="location.href='index.html'"></p> 
+            
              
                 <br><br />
                 <br />

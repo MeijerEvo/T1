@@ -19,6 +19,8 @@ var program = new Boolean(false);
 var preProgram = new Boolean(false);
 
 var progressValue = 0;
+var programPos = 0;
+
 var validConnection = 0; //Connection counter
 
 setInterval(checkConnection, 3000);
@@ -43,9 +45,9 @@ function checkConnection()
 function onload(event) {
     initWebSocket();
     
-    //Hide program text
-    document.getElementsByClassName('programsTable')[0].style.display = 'none'; 
-    document.getElementById("text").value = "VISA TEXT";
+    //Show program text
+    document.getElementById("text").value = "GÖM TEXT";
+    document.getElementsByClassName('programsTable')[0].style.display = 'inline';
     
 
 
@@ -121,6 +123,9 @@ function onMessage(event) {
     var keys = Object.keys(myObj);
     
     console.log(keys.length);
+    
+    //Update table
+    updateProgramList(choosenProgram);
 
     for (var i = 0; i < keys.length; i++){
         var key = keys[i];
@@ -135,7 +140,7 @@ function onMessage(event) {
                 
                 //Set value to progress bar just first time
                 if (preProgram == false) { 
-                    preProgressValue = myObj[key];
+                    preProgressValue = myObj[key]+1;
                     const preProgress = document.getElementById("preProgramProgress");
                     preProgress.max = preProgressValue;//100;
                    
@@ -144,8 +149,8 @@ function onMessage(event) {
                 //Increase slider
                 const preProgress = document.getElementById("preProgramProgress");
                 preProgress.value = (preProgressValue - myObj[key]+1);
-                
-
+               
+                programPos = (preProgressValue - myObj[key]+1);
                 
                
                 
@@ -167,18 +172,49 @@ function onMessage(event) {
                 preProgram = false;
                 
                 document.getElementById("preProgramStartStopButton").value = "STARTA PROGRAM";
-                document.getElementById("preProgramStartStopButton").style.backgroundColor = '#F78702';
+                document.getElementById("preProgramStartStopButton").style.backgroundColor = '#32612D';
                 
                 document.getElementById("preProgramExtra").value = "EXTRA";
-                document.getElementById("preProgramExtra").style.backgroundColor = '#F78702';
+                document.getElementById("preProgramExtra").style.backgroundColor = '#32612D';
                 
                 //Reset timer value
-                document.getElementById("preProgramTimerTime").innerHTML = 0;
+                //document.getElementById("preProgramTimerTime").innerHTML = 0;
                 
                 
                 //Reset progress bar
                 const preProgress = document.getElementById("preProgramProgress");
                 preProgress.value = 0;
+                
+                /*
+                //Clear table
+                let table1 = document.getElementById('programsTable');
+     
+                table1.innerHTML = "";
+                programPos = 0;
+                
+                //Update program list
+                for (var i = 0; i < programs.length; ++i) {
+
+                    //Filter out the program items 
+                    if (programs[i].name == choosenProgram) {
+
+                        //Create row
+                        let tr = document.createElement('tr');          
+
+                        //Columns
+                        let td2 = document.createElement('td');
+                        
+                        td2.textContent = programs[i].action;
+                        td2.style.color = "#000000";
+                            
+                        //Add to row
+                        tr.appendChild(td2);
+
+                        //Add to table
+                        table1.appendChild(tr);
+
+                    } 
+                }*/
                 
                
                 
@@ -199,7 +235,7 @@ function onMessage(event) {
                 document.getElementById("preProgramExtra").value = "EXTRA";
                 
                 //Set color
-                document.getElementById("preProgramExtra").style.backgroundColor = '#F78702';
+                document.getElementById("preProgramExtra").style.backgroundColor = '#32612D';
                 
                 //Reset flag
                 fieldFlag = false;
@@ -215,7 +251,7 @@ function onMessage(event) {
             
             if (myObj[key] == 2) {
                 //Pause Milsnabb
-                document.getElementById("preProgramExtra").value = "GÅ TILL PATRON UR OSV";
+                document.getElementById("preProgramExtra").value = "GÅ TILL PATRON UR";
                            
                 //Set color
                 document.getElementById("preProgramExtra").style.backgroundColor = 'Blue';
@@ -242,7 +278,7 @@ function onMessage(event) {
         
         //Timer block
         if (key == "timerBlock") {
-            document.getElementById("preProgramTimerTime").innerHTML = myObj[key];
+            //document.getElementById("preProgramTimerTime").innerHTML = myObj[key];
         }
         
 
@@ -269,7 +305,8 @@ function onMessage(event) {
             }   
         }
         
-
+       
+        
         
         
         
@@ -337,6 +374,40 @@ function preProgramStartStop() {
                } else {
                    //Send message
                      websocket.send("preProgramStop");
+                   
+                    //Clear table
+                   // let table1 = document.getElementById('programsTable');
+                   let table1 = document.querySelector("#programsTable tbody"); 
+     
+                    table1.innerHTML = "";
+                    programPos = 0;
+
+
+                    //Update program list
+                    for (var i = 0; i < programs.length; ++i) {
+
+                        //Filter out the program items 
+                        if (programs[i].name == choosenProgram) {
+
+                            //Create row
+                            let tr = document.createElement('tr');          
+
+                            //Columns
+                            let td2 = document.createElement('td');
+                            
+                            td2.textContent = programs[i].action;
+                            td2.style.color = "#000000";
+                            
+                            //Add to row
+                            tr.appendChild(td2);
+
+                            //Add to table
+                            table1.appendChild(tr);
+
+                        } 
+                    }
+
+                   
                } 
          }
     }
@@ -374,37 +445,47 @@ function lane2Checked() {
 
 function updateProgramList(selectValue) {
     
-    let table1 = document.getElementById('programsTable');
-   // let table2 = document.getElementById('programsLog');
+    console.log("Update of table...");
+    console.log(programPos);
     
+   // let table1 = document.getElementById('programsTable');
+    let table1 = document.querySelector("#programsTable tbody"); 
+    
+
+     
     table1.innerHTML = "";
-    //table2.innerHTML = "";
+
     
     //Update program list
     for (var i = 0; i < programs.length; ++i) {
          
         //Filter out the program items 
         if (programs[i].name == selectValue) {
-            //if (programs[i].name == selectValue.value) {
-            //Add
-
-            let tr = document.createElement('tr');
+                             
+            //Create row
+            let tr = document.createElement('tr');          
             
-            //Checkbox
-            let td1 = document.createElement('td');
+            //Columns
+             let td2 = document.createElement('td');
             
-            const chk = td1.appendChild(document.createElement('progress'));
-             
-            chk.type = 'input';
-           
-            tr.appendChild(td1);
-
-            let td2 = document.createElement('td');
-            td2.textContent = programs[i].action;
+            //Check if this row is to have the arrow indicator
+            //Where are we in the program?
+            
+            if (programPos >= programs[i].start && programPos <= programs[i].stop) {
+  
+                td2.textContent = programs[i].action + " = " + (programs[i].stop - programPos+1);
+                td2.style.color = "#FF0000";
+        
+            } else {
+                
+                td2.textContent = programs[i].action;
+                td2.style.color = "#000000";
+            }  
+  
+            //Add to row
             tr.appendChild(td2);
             
-            
-
+            //Add to table
             table1.appendChild(tr);
 
         } 
@@ -426,7 +507,7 @@ function preProgramExtra() {
         websocket.send("fastForwardPrecison");
     }
     
-    if (document.getElementById("preProgramExtra").value == "GÅ TILL PATRON UR OSV") {
+    if (document.getElementById("preProgramExtra").value == "GÅ TILL PATRON UR") {
         //Send start program again
         websocket.send("playPreProgram");
     }  
@@ -539,313 +620,343 @@ const soundCommands = [
 const programs = [
     
     //25 METER PRECISION
-    { name: 'Precision Förberedelsetid', action: 'FÖRBEREDELSETID START'},
-    { name: 'Precision Förberedelsetid', action: 'Fördröjning 300 sekunder'},
-    { name: 'Precision Förberedelsetid', action: 'FÖRBEREDELSETID STOPP'},
+    { name: 'Precision Förberedelsetid', action: 'FÖRBEREDELSETID START', start: 1, stop: 3},
+    { name: 'Precision Förberedelsetid', action: 'Fördröjning 300 sekunder', start: 4, stop: 303},
+    { name: 'Precision Förberedelsetid', action: 'FÖRBEREDELSETID STOPP', start: 304, stop: 305},  
     
-    { name: 'Precision Provserie', action: 'PROVSERIE LADDA'},
-    { name: 'Precision Provserie', action: 'Fördröjning 57 sekunder'},
-    { name: 'Precision Provserie', action: 'FÄRDIGA'},
-    { name: 'Precision Provserie', action: 'ELD'},
-    { name: 'Precision Provserie', action: 'Fördröjning 297 sekunder'},
-    { name: 'Precision Provserie', action: 'ELD UPPHÖR'},
-    { name: 'Precision Provserie', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Precision Provserie', action: 'VISITATION'},
+    { name: 'Precision Provserie', action: 'PROVSERIE LADDA', start: 1, stop: 4},
+    { name: 'Precision Provserie', action: 'Fördröjning 57 sekunder', start: 5, stop: 61},
+    { name: 'Precision Provserie', action: 'FÄRDIGA', start: 62, stop: 63},
+    { name: 'Precision Provserie', action: 'ELD', start: 64, stop: 65},
+    { name: 'Precision Provserie', action: 'Fördröjning 297 sekunder', start: 66, stop: 362},
+    { name: 'Precision Provserie', action: 'ELD UPPHÖR', start: 363, stop: 367},
+    { name: 'Precision Provserie', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 368, stop: 372},
+    { name: 'Precision Provserie', action: 'VISITATION', start: 373, stop: 375},
     
-    { name: 'Precision Serie 1', action: 'SERIE 1 LADDA'},
-    { name: 'Precision Serie 1', action: 'Fördröjning 57 sekunder'},
-    { name: 'Precision Serie 1', action: 'FÄRDIGA'},
-    { name: 'Precision Serie 1', action: 'ELD'},
-    { name: 'Precision Serie 1', action: 'Fördröjning 297 sekunder'},
-    { name: 'Precision Serie 1', action: 'ELD UPPHÖR'},
-    { name: 'Precision Serie 1', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Precision Serie 1', action: 'VISITATION'},
+    { name: 'Precision Serie 1', action: 'SERIE 1 LADDA', start: 1, stop: 4},
+    { name: 'Precision Serie 1', action: 'Fördröjning 57 sekunder', start: 5, stop: 61},
+    { name: 'Precision Serie 1', action: 'FÄRDIGA', start: 62, stop: 63},
+    { name: 'Precision Serie 1', action: 'ELD', start: 64, stop: 65},
+    { name: 'Precision Serie 1', action: 'Fördröjning 297 sekunder', start: 66, stop: 362},
+    { name: 'Precision Serie 1', action: 'ELD UPPHÖR', start: 363, stop: 367},
+    { name: 'Precision Serie 1', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 368, stop: 372},
+    { name: 'Precision Serie 1', action: 'VISITATION', start: 373, stop: 375},
     
-    { name: 'Precision Serie 2', action: 'SERIE 2 LADDA'},
-    { name: 'Precision Serie 2', action: 'Fördröjning 57 sekunder'},
-    { name: 'Precision Serie 2', action: 'FÄRDIGA'},
-    { name: 'Precision Serie 2', action: 'ELD'},
-    { name: 'Precision Serie 2', action: 'Fördröjning 297 sekunder'},
-    { name: 'Precision Serie 2', action: 'ELD UPPHÖR'},
-    { name: 'Precision Serie 2', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Precision Serie 2', action: 'VISITATION'},
+    { name: 'Precision Serie 2', action: 'SERIE 2 LADDA', start: 1, stop: 4},
+    { name: 'Precision Serie 2', action: 'Fördröjning 57 sekunder', start: 5, stop: 61},
+    { name: 'Precision Serie 2', action: 'FÄRDIGA', start: 62, stop: 63},
+    { name: 'Precision Serie 2', action: 'ELD', start: 64, stop: 65},
+    { name: 'Precision Serie 2', action: 'Fördröjning 297 sekunder', start: 66, stop: 362},
+    { name: 'Precision Serie 2', action: 'ELD UPPHÖR', start: 363, stop: 367},
+    { name: 'Precision Serie 2', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 368, stop: 372},
+    { name: 'Precision Serie 2', action: 'VISITATION', start: 373, stop: 375},
     
-    { name: 'Precision Serie 3', action: 'SERIE 3 LADDA'},
-    { name: 'Precision Serie 3', action: 'Fördröjning 57 sekunder'},
-    { name: 'Precision Serie 3', action: 'FÄRDIGA'},
-    { name: 'Precision Serie 3', action: 'ELD'},
-    { name: 'Precision Serie 3', action: 'Fördröjning 297 sekunder'},
-    { name: 'Precision Serie 3', action: 'ELD UPPHÖR'},
-    { name: 'Precision Serie 3', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Precision Serie 3', action: 'VISITATION'},
+    { name: 'Precision Serie 3', action: 'SERIE 3 LADDA', start: 1, stop: 4},
+    { name: 'Precision Serie 3', action: 'Fördröjning 57 sekunder', start: 5, stop: 61},
+    { name: 'Precision Serie 3', action: 'FÄRDIGA', start: 62, stop: 63},
+    { name: 'Precision Serie 3', action: 'ELD', start: 64, stop: 65},
+    { name: 'Precision Serie 3', action: 'Fördröjning 297 sekunder', start: 66, stop: 362},
+    { name: 'Precision Serie 3', action: 'ELD UPPHÖR', start: 363, stop: 367},
+    { name: 'Precision Serie 3', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 368, stop: 372},
+    { name: 'Precision Serie 3', action: 'VISITATION', start: 373, stop: 375},
     
-    { name: 'Precision Serie 4', action: 'SERIE 4 LADDA'},
-    { name: 'Precision Serie 4', action: 'Fördröjning 57 sekunder'},
-    { name: 'Precision Serie 4', action: 'FÄRDIGA'},
-    { name: 'Precision Serie 4', action: 'ELD'},
-    { name: 'Precision Serie 4', action: 'Fördröjning 297 sekunder'},
-    { name: 'Precision Serie 4', action: 'ELD UPPHÖR'},
-    { name: 'Precision Serie 4', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Precision Serie 4', action: 'VISITATION'},
+    { name: 'Precision Serie 4', action: 'SERIE 4 LADDA', start: 1, stop: 4},
+    { name: 'Precision Serie 4', action: 'Fördröjning 57 sekunder', start: 5, stop: 61},
+    { name: 'Precision Serie 4', action: 'FÄRDIGA', start: 62, stop: 63},
+    { name: 'Precision Serie 4', action: 'ELD', start: 64, stop: 65},
+    { name: 'Precision Serie 4', action: 'Fördröjning 297 sekunder', start: 66, stop: 362},
+    { name: 'Precision Serie 4', action: 'ELD UPPHÖR', start: 363, stop: 367},
+    { name: 'Precision Serie 4', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 368, stop: 372},
+    { name: 'Precision Serie 4', action: 'VISITATION', start: 373, stop: 375},
     
-    { name: 'Precision Serie 5', action: 'SERIE 5 LADDA'},
-    { name: 'Precision Serie 5', action: 'Fördröjning 57 sekunder'},
-    { name: 'Precision Serie 5', action: 'FÄRDIGA'},
-    { name: 'Precision Serie 5', action: 'ELD'},
-    { name: 'Precision Serie 5', action: 'Fördröjning 297 sekunder'},
-    { name: 'Precision Serie 5', action: 'ELD UPPHÖR'},
-    { name: 'Precision Serie 5', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Precision Serie 5', action: 'VISITATION'},
+    { name: 'Precision Serie 5', action: 'SERIE 5 LADDA', start: 1, stop: 4},
+    { name: 'Precision Serie 5', action: 'Fördröjning 57 sekunder', start: 5, stop: 61},
+    { name: 'Precision Serie 5', action: 'FÄRDIGA', start: 62, stop: 63},
+    { name: 'Precision Serie 5', action: 'ELD', start: 64, stop: 65},
+    { name: 'Precision Serie 5', action: 'Fördröjning 297 sekunder', start: 66, stop: 362},
+    { name: 'Precision Serie 5', action: 'ELD UPPHÖR', start: 363, stop: 367},
+    { name: 'Precision Serie 5', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 368, stop: 372},
+    { name: 'Precision Serie 5', action: 'VISITATION', start: 373, stop: 375},
     
-    { name: 'Precision Serie 6', action: 'SERIE 6 LADDA'},
-    { name: 'Precision Serie 6', action: 'Fördröjning 57 sekunder'},
-    { name: 'Precision Serie 6', action: 'FÄRDIGA'},
-    { name: 'Precision Serie 6', action: 'ELD'},
-    { name: 'Precision Serie 6', action: 'Fördröjning 297 sekunder'},
-    { name: 'Precision Serie 6', action: 'ELD UPPHÖR'},
-    { name: 'Precision Serie 6', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Precision Serie 6', action: 'VISITATION'},
+    { name: 'Precision Serie 6', action: 'SERIE 6 LADDA', start: 1, stop: 4},
+    { name: 'Precision Serie 6', action: 'Fördröjning 57 sekunder', start: 5, stop: 61},
+    { name: 'Precision Serie 6', action: 'FÄRDIGA', start: 62, stop: 63},
+    { name: 'Precision Serie 6', action: 'ELD', start: 64, stop: 65},
+    { name: 'Precision Serie 6', action: 'Fördröjning 297 sekunder', start: 66, stop: 362},
+    { name: 'Precision Serie 6', action: 'ELD UPPHÖR', start: 363, stop: 367},
+    { name: 'Precision Serie 6', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 368, stop: 372},
+    { name: 'Precision Serie 6', action: 'VISITATION', start: 373, stop: 375},
     
-    { name: 'Precision Serie 7', action: 'SERIE 7 LADDA'},
-    { name: 'Precision Serie 7', action: 'Fördröjning 57 sekunder'},
-    { name: 'Precision Serie 7', action: 'FÄRDIGA'},
-    { name: 'Precision Serie 7', action: 'ELD'},
-    { name: 'Precision Serie 7', action: 'Fördröjning 297 sekunder'},
-    { name: 'Precision Serie 7', action: 'ELD UPPHÖR'},
-    { name: 'Precision Serie 7', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Precision Serie 7', action: 'VISITATION'},
+    { name: 'Precision Serie 7', action: 'SERIE 7 LADDA', start: 1, stop: 4},
+    { name: 'Precision Serie 7', action: 'Fördröjning 57 sekunder', start: 5, stop: 61},
+    { name: 'Precision Serie 7', action: 'FÄRDIGA', start: 62, stop: 63},
+    { name: 'Precision Serie 7', action: 'ELD', start: 64, stop: 65},
+    { name: 'Precision Serie 7', action: 'Fördröjning 297 sekunder', start: 66, stop: 362},
+    { name: 'Precision Serie 7', action: 'ELD UPPHÖR', start: 363, stop: 367},
+    { name: 'Precision Serie 7', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 368, stop: 372},
+    { name: 'Precision Serie 7', action: 'VISITATION', start: 373, stop: 375},
     
-    { name: 'Precision Serie 8', action: 'SERIE 8 LADDA'},
-    { name: 'Precision Serie 8', action: 'Fördröjning 57 sekunder'},
-    { name: 'Precision Serie 8', action: 'FÄRDIGA'},
-    { name: 'Precision Serie 8', action: 'ELD'},
-    { name: 'Precision Serie 8', action: 'Fördröjning 297 sekunder'},
-    { name: 'Precision Serie 8', action: 'ELD UPPHÖR'},
-    { name: 'Precision Serie 8', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Precision Serie 8', action: 'VISITATION'},
+    { name: 'Precision Serie 8', action: 'SERIE 8 LADDA', start: 1, stop: 4},
+    { name: 'Precision Serie 8', action: 'Fördröjning 57 sekunder', start: 5, stop: 61},
+    { name: 'Precision Serie 8', action: 'FÄRDIGA', start: 62, stop: 63},
+    { name: 'Precision Serie 8', action: 'ELD', start: 64, stop: 65},
+    { name: 'Precision Serie 8', action: 'Fördröjning 297 sekunder', start: 66, stop: 362},
+    { name: 'Precision Serie 8', action: 'ELD UPPHÖR', start: 363, stop: 367},
+    { name: 'Precision Serie 8', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 368, stop: 372},
+    { name: 'Precision Serie 8', action: 'VISITATION', start: 373, stop: 375},
     
-    { name: 'Precision Serie 9', action: 'SERIE 9 LADDA'},
-    { name: 'Precision Serie 9', action: 'Fördröjning 57 sekunder'},
-    { name: 'Precision Serie 9', action: 'FÄRDIGA'},
-    { name: 'Precision Serie 9', action: 'ELD'},
-    { name: 'Precision Serie 9', action: 'Fördröjning 297 sekunder'},
-    { name: 'Precision Serie 9', action: 'ELD UPPHÖR'},
-    { name: 'Precision Serie 9', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Precision Serie 9', action: 'VISITATION'},
+    { name: 'Precision Serie 9', action: 'SERIE 9 LADDA', start: 1, stop: 4},
+    { name: 'Precision Serie 9', action: 'Fördröjning 57 sekunder', start: 5, stop: 61},
+    { name: 'Precision Serie 9', action: 'FÄRDIGA', start: 62, stop: 63},
+    { name: 'Precision Serie 9', action: 'ELD', start: 64, stop: 65},
+    { name: 'Precision Serie 9', action: 'Fördröjning 297 sekunder', start: 66, stop: 362},
+    { name: 'Precision Serie 9', action: 'ELD UPPHÖR', start: 363, stop: 367},
+    { name: 'Precision Serie 9', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 368, stop: 372},
+    { name: 'Precision Serie 9', action: 'VISITATION', start: 373, stop: 375},
     
-    { name: 'Precision Serie 10', action: 'SERIE 10 LADDA'},
-    { name: 'Precision Serie 10', action: 'Fördröjning 57 sekunder'},
-    { name: 'Precision Serie 10', action: 'FÄRDIGA'},
-    { name: 'Precision Serie 10', action: 'ELD'},
-    { name: 'Precision Serie 10', action: 'Fördröjning 297 sekunder'},
-    { name: 'Precision Serie 10', action: 'ELD UPPHÖR'},
-    { name: 'Precision Serie 10', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Precision Serie 10', action: 'VISITATION'},
+    { name: 'Precision Serie 10', action: 'SERIE 10 LADDA', start: 1, stop: 4},
+    { name: 'Precision Serie 10', action: 'Fördröjning 57 sekunder', start: 5, stop: 61},
+    { name: 'Precision Serie 10', action: 'FÄRDIGA', start: 62, stop: 63},
+    { name: 'Precision Serie 10', action: 'ELD', start: 64, stop: 65},
+    { name: 'Precision Serie 10', action: 'Fördröjning 297 sekunder', start: 66, stop: 362},
+    { name: 'Precision Serie 10', action: 'ELD UPPHÖR', start: 363, stop: 367},
+    { name: 'Precision Serie 10', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 368, stop: 372},
+    { name: 'Precision Serie 10', action: 'VISITATION', start: 373, stop: 375},
     
     //25 METER MILSNABB 10 SEK
-    { name: 'Militär Snabbmatch Förberedelsetid', action: 'FÖRBEREDELSETID START'},
-    { name: 'Militär Snabbmatch Förberedelsetid', action: 'Fördröjning 180 sekunder'},
-    { name: 'Militär Snabbmatch Förberedelsetid', action: 'FÖRBEREDELSETID STOPP'},
+    { name: 'Militär Snabbmatch Förberedelsetid', action: 'FÖRBEREDELSETID START' , start: 1, stop: 3},
+    { name: 'Militär Snabbmatch Förberedelsetid', action: 'Fördröjning 180 sekunder', start: 4, stop: 183},
+    { name: 'Militär Snabbmatch Förberedelsetid', action: 'FÖRBEREDELSETID STOPP', start: 184, stop: 185},   
     
-    { name: 'Militär Snabbmatch Provserie', action: 'PROVSERIE 10 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch Provserie', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch Provserie', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch Provserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch Provserie', action: 'Tavla fram 10 sekunder'},
-    { name: 'Militär Snabbmatch Provserie', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch Provserie', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch Provserie', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch Provserie', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch Provserie', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch Provserie', action: 'PROVSERIE 10 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch Provserie', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch Provserie', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch Provserie', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch Provserie', action: 'Tavla fram 10 sekunder', start: 78, stop: 87},
+    { name: 'Militär Snabbmatch Provserie', action: 'Tavla bort', start: 88, stop: 89},
+    { name: 'Militär Snabbmatch Provserie', action: 'ELD UPPHÖR', start: 90, stop: 92},
+    { name: 'Militär Snabbmatch Provserie', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 93, stop: 98},
+    { name: 'Militär Snabbmatch Provserie', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET', start: 99, stop: 103},
+    { name: 'Militär Snabbmatch Provserie', action: 'VISITATION', start: 104, stop: 106},
     
-    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'SERIE 1 - 10 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'Tavla fram 10 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'SERIE 1 - 10 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'Tavla fram 10 sekunder', start: 78, stop: 87},
+    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'Tavla bort', start: 88, stop: 89},
+    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'ELD UPPHÖR', start: 90, stop: 92},
+    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 93, stop: 98},
+    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 99, stop: 103},
+    { name: 'Militär Snabbmatch - Serie 1 - 10 sek', action: 'VISITATION', start: 104, stop: 106},
     
-    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'SERIE 2 - 10 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'Tavla fram 10 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'SERIE 2 - 10 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'Tavla fram 10 sekunder', start: 78, stop: 87},
+    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'Tavla bort', start: 88, stop: 89},
+    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'ELD UPPHÖR', start: 90, stop: 92},
+    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 93, stop: 98},
+    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 99, stop: 103},
+    { name: 'Militär Snabbmatch - Serie 2 - 10 sek', action: 'VISITATION', start: 104, stop: 106},
     
-    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'SERIE 3 - 10 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'Tavla fram 10 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'SERIE 3 - 10 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'Tavla fram 10 sekunder', start: 78, stop: 87},
+    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'Tavla bort', start: 88, stop: 89},
+    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'ELD UPPHÖR', start: 90, stop: 92},
+    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 93, stop: 98},
+    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 99, stop: 103},
+    { name: 'Militär Snabbmatch - Serie 3 - 10 sek', action: 'VISITATION', start: 104, stop: 106},
     
-    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'SERIE 4 - 10 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'Tavla fram 10 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'SERIE 4 - 10 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'Tavla fram 10 sekunder', start: 78, stop: 87},
+    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'Tavla bort', start: 88, stop: 89},
+    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'ELD UPPHÖR', start: 90, stop: 92},
+    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 93, stop: 98},
+    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 99, stop: 103},
+    { name: 'Militär Snabbmatch - Serie 4 - 10 sek', action: 'VISITATION', start: 104, stop: 106},
         
     //25 METER MILSNABB 8 SEK
-    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'SERIE 1 - 8 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'Tavla fram 8 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'SERIE 1 - 8 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'Tavla fram 8 sekunder', start: 78, stop: 85},
+    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'Tavla bort', start: 86, stop: 87},
+    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'ELD UPPHÖR', start: 88, stop: 90},
+    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 91, stop: 96},
+    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 97, stop: 101},
+    { name: 'Militär Snabbmatch - Serie 1 - 8 sek', action: 'VISITATION', start: 102, stop: 104},
     
-    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'SERIE 2 - 8 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'Tavla fram 8 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'SERIE 2 - 8 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'Tavla fram 8 sekunder', start: 78, stop: 85},
+    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'Tavla bort', start: 86, stop: 87},
+    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'ELD UPPHÖR', start: 88, stop: 90},
+    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 91, stop: 96},
+    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 97, stop: 101},
+    { name: 'Militär Snabbmatch - Serie 2 - 8 sek', action: 'VISITATION', start: 102, stop: 104},
     
-    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'SERIE 3 - 8 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'Tavla fram 8 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'SERIE 3 - 8 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'Tavla fram 8 sekunder', start: 78, stop: 85},
+    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'Tavla bort', start: 86, stop: 87},
+    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'ELD UPPHÖR', start: 88, stop: 90},
+    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 91, stop: 96},
+    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 97, stop: 101},
+    { name: 'Militär Snabbmatch - Serie 3 - 8 sek', action: 'VISITATION', start: 102, stop: 104},
     
-    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'SERIE 4 - 8 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'Tavla fram 8 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'SERIE 4 - 8 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'Tavla fram 8 sekunder', start: 78, stop: 85},
+    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'Tavla bort', start: 86, stop: 87},
+    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'ELD UPPHÖR', start: 88, stop: 90},
+    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 91, stop: 96},
+    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 97, stop: 101},
+    { name: 'Militär Snabbmatch - Serie 4 - 8 sek', action: 'VISITATION', start: 102, stop: 104},
     
     //25 METER MILSNABB 6 SEK
-    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'SERIE 1 - 6 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'Tavla fram 6 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'SERIE 1 - 6 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'Tavla fram 6 sekunder', start: 78, stop: 83},
+    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'Tavla bort', start: 84, stop: 85},
+    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'ELD UPPHÖR', start: 86, stop: 88},
+    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 89, stop: 94},
+    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 95, stop: 99},
+    { name: 'Militär Snabbmatch - Serie 1 - 6 sek', action: 'VISITATION', start: 100, stop: 102},
     
-    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'SERIE 2 - 6 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'Tavla fram 6 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'SERIE 2 - 6 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'Tavla fram 6 sekunder', start: 78, stop: 83},
+    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'Tavla bort', start: 84, stop: 85},
+    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'ELD UPPHÖR', start: 86, stop: 88},
+    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 89, stop: 94},
+    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 95, stop: 99},
+    { name: 'Militär Snabbmatch - Serie 2 - 6 sek', action: 'VISITATION', start: 100, stop: 102},
     
-    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'SERIE 3 - 6 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'Tavla fram 6 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'SERIE 3 - 6 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'Tavla fram 6 sekunder', start: 78, stop: 83},
+    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'Tavla bort', start: 84, stop: 85},
+    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'ELD UPPHÖR', start: 86, stop: 88},
+    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 89, stop: 94},
+    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 95, stop: 99},
+    { name: 'Militär Snabbmatch - Serie 3 - 6 sek', action: 'VISITATION', start: 100, stop: 102},
     
-    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'SERIE 4 - 6 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'Tavla fram 6 sekunder'},
-    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'SERIE 4 - 6 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'Tavla fram 6 sekunder', start: 78, stop: 83},
+    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'Tavla bort', start: 84, stop: 85},
+    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'ELD UPPHÖR', start: 86, stop: 88},
+    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 89, stop: 94},
+    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 95, stop: 99},
+    { name: 'Militär Snabbmatch - Serie 4 - 6 sek', action: 'VISITATION', start: 100, stop: 102},
     
-    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'SÄRSKJUTNING PROVSERIE - 10 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'Tavla fram 10 sekunder'},
-    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'SÄRSKJUTNING PROVSERIE - 10 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'Tavla fram 10 sekunder', start: 78, stop: 87},
+    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'Tavla bort', start: 88, stop: 89},
+    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'ELD UPPHÖR', start: 90, stop: 92},
+    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 93, stop: 98},
+    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 99, stop: 103},
+    { name: 'Militär Snabbmatch - Särskjutning Provserie - 10 sek', action: 'VISITATION', start: 104, stop: 106},
     
-    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'SÄRSKJUTNING - 6 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'Tavla fram 10 sekunder'},
-    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'SÄRSKJUTNING - 6 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'Tavla fram 6 sekunder', start: 78, stop: 83},
+    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'Tavla bort', start: 84, stop: 85},
+    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'ELD UPPHÖR', start: 86, stop: 88},
+    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 89, stop: 94},
+    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 95, stop: 99},
+    { name: 'Militär Snabbmatch - Särskjutning - 6 sek', action: 'VISITATION', start: 100, stop: 102},
     
-    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'KOMPLETTERINGSERIE - 10 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'Tavla fram 10 sekunder'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'KOMPLETTERINGSERIE - 10 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'Tavla fram 10 sekunder', start: 78, stop: 87},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'Tavla bort', start: 88, stop: 89},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'ELD UPPHÖR', start: 90, stop: 92},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 93, stop: 98},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 99, stop: 103},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', action: 'VISITATION', start: 104, stop: 106},
     
-    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'KOMPLETTERINGSERIE - 8 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'Tavla fram 8 sekunder'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'KOMPLETTERINGSERIE - 8 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'Tavla fram 8 sekunder', start: 78, stop: 85},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'Tavla bort', start: 86, stop: 87},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'ELD UPPHÖR', start: 88, stop: 90},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 91, stop: 96},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 97, stop: 101},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', action: 'VISITATION', start: 102, stop: 104},
 
-    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'KOMPLETTERINGSERIE - 6 SEKUNDER LADDA'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'FÄRDIGA'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'Tavla fram 6 sekunder'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'Tavla bort'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'ELD UPPHÖR'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'VISITATION'},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'KOMPLETTERINGSERIE - 6 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'Tavla fram 6 sekunder', start: 78, stop: 83},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'Tavla bort', start: 84, stop: 85},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'ELD UPPHÖR', start: 86, stop: 88},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 89, stop: 94},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 95, stop: 99},
+    { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', action: 'VISITATION', start: 100, stop: 102},
+    
+    { name: 'Militär Snabbmatch - Träningsserie - 10 sek', action: 'SERIE 1 - 10 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Träningsserie - 10 sek', action: 'Fördröjning 20 sekunder', start: 10, stop: 29},
+    { name: 'Militär Snabbmatch - Träningsserie - 10 sek', action: 'FÄRDIGA', start: 30, stop: 30},
+    { name: 'Militär Snabbmatch - Träningsserie - 10 sek', action: 'Tavla bort 7 sekunder', start: 31, stop: 37},
+    { name: 'Militär Snabbmatch - Träningsserie - 10 sek', action: 'Tavla fram 10 sekunder', start: 38, stop: 47},
+    { name: 'Militär Snabbmatch - Träningsserie - 10 sek', action: 'Tavla bort', start: 48, stop: 49},
+    { name: 'Militär Snabbmatch - Träningsserie - 10 sek', action: 'ELD UPPHÖR', start: 50, stop: 52},
+    { name: 'Militär Snabbmatch - Träningsserie - 10 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 53, stop: 59},
+    { name: 'Militär Snabbmatch - Träningsserie - 10 sek', action: 'VISITATION', start: 60, stop: 62},
+    
+    { name: 'Militär Snabbmatch - Träningsserie - 8 sek', action: 'SERIE 1 - 8 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Träningsserie - 8 sek', action: 'Fördröjning 20 sekunder', start: 10, stop: 29},
+    { name: 'Militär Snabbmatch - Träningsserie - 8 sek', action: 'FÄRDIGA', start: 30, stop: 30},
+    { name: 'Militär Snabbmatch - Träningsserie - 8 sek', action: 'Tavla bort 7 sekunder', start: 31, stop: 37},
+    { name: 'Militär Snabbmatch - Träningsserie - 8 sek', action: 'Tavla fram 8 sekunder', start: 38, stop: 45},
+    { name: 'Militär Snabbmatch - Träningsserie - 8 sek', action: 'Tavla bort', start: 46, stop: 47},
+    { name: 'Militär Snabbmatch - Träningsserie - 8 sek', action: 'ELD UPPHÖR', start: 48, stop: 50},
+    { name: 'Militär Snabbmatch - Träningsserie - 8 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 51, stop: 57},
+    { name: 'Militär Snabbmatch - Träningsserie - 8 sek', action: 'VISITATION', start: 58, stop: 60},
+
+    { name: 'Militär Snabbmatch - Träningsserie - 6 sek', action: 'SERIE 1- 6 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Militär Snabbmatch - Träningsserie - 6 sek', action: 'Fördröjning 20 sekunder', start: 10, stop: 29},
+    { name: 'Militär Snabbmatch - Träningsserie - 6 sek', action: 'FÄRDIGA', start: 30, stop: 30},
+    { name: 'Militär Snabbmatch - Träningsserie - 6 sek', action: 'Tavla bort 7 sekunder', start: 31, stop: 37},
+    { name: 'Militär Snabbmatch - Träningsserie - 6 sek', action: 'Tavla fram 6 sekunder', start: 38, stop: 43},
+    { name: 'Militär Snabbmatch - Träningsserie - 6 sek', action: 'Tavla bort', start: 44, stop: 45},
+    { name: 'Militär Snabbmatch - Träningsserie - 6 sek', action: 'ELD UPPHÖR', start: 46, stop: 48},
+    { name: 'Militär Snabbmatch - Träningsserie - 6 sek', action: 'PATRON UR PROPPA OCH LÄGG NER VAPNET', start: 49, stop: 55},
+    { name: 'Militär Snabbmatch - Träningsserie - 6 sek', action: 'VISITATION', start: 56, stop: 58},
     
     
     //25 METER SNABBPISTOL
@@ -853,348 +964,350 @@ const programs = [
     //{ name: 'Snabbpistol Förberedelsetid', action: 'Fördröjning 300 sekunder'},
     //{ name: 'Snabbpistol Förberedelsetid', action: 'FÖRBEREDELSETID STOPP'},
     
-    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'FÖRBEREDELSETID BÖRJAR NU'},
-    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'Fördröjning 180 sekunder'},
-    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'PROVSERIE 8 SEKUNDER LADDA'},
-    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'Fördröjning 60 sekunder'},
-    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'FÄRDIGA'},
-    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'Tavla fram 8 sekunder'},
-    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'Tavla bort'},
-    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'STOPP, PATRON UR'},
-    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'VISITATION'},
+    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'FÖRBEREDELSETID BÖRJAR NU', start: 1, stop: 3},
+    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'Fördröjning 180 sekunder', start: 4, stop: 183},
+    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'PROVSERIE 8 SEKUNDER LADDA', start: 184, stop: 190},
+    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'Fördröjning 60 sekunder', start: 191, stop: 250},
+    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'FÄRDIGA', start: 251, stop: 251},
+    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder', start: 252, stop: 258},
+    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'Tavla fram 8 sekunder', start: 259, stop: 266},
+    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'Tavla bort', start: 267, stop: 268},
+    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'NÅGRA FUNKTIONERINGSFEL?', start:269, stop: 271},
+    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'STOPP, PATRON UR', start: 272, stop: 275},
+    { name: 'Snabbpistol Förberedelsetid + Provserie', action: 'VISITATION', start: 276, stop: 278},
     
     //25 METER SNABBPISTOL 8 SEK
-    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'SERIE 1 - 8 SEKUNDER LADDA'},
-    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'FÄRDIGA'},
-    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'Tavla fram 8 sekunder'},
-    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'Tavla bort'},
-    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'STOPP, PATRON UR'},
-    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'VISITATION'},
+    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'SERIE 1 - 8 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'Tavla fram 8 sekunder', start: 78, stop: 85},
+    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'Tavla bort', start: 86, stop: 87},
+    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 88, stop: 90},
+    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'STOPP, PATRON UR', start: 91, stop: 94},
+    { name: 'Snabbpistol - Serie 1 - 8 sek', action: 'VISITATION', start: 95, stop: 97},
     
-    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'SERIE 2 - 8 SEKUNDER LADDA'},
-    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'FÄRDIGA'},
-    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'Tavla fram 8 sekunder'},
-    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'Tavla bort'},
-    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'STOPP, PATRON UR'},
-    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'VISITATION'},
+    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'SERIE 2 - 8 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'Tavla fram 8 sekunder', start: 78, stop: 85},
+    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'Tavla bort', start: 86, stop: 87},
+    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 88, stop: 90},
+    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'STOPP, PATRON UR', start: 91, stop: 94},
+    { name: 'Snabbpistol - Serie 2 - 8 sek', action: 'VISITATION', start: 95, stop: 97},
     
     //25 METER SNABBPISTOL 6 SEK
-    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'SERIE 1 - 6 SEKUNDER LADDA'},
-    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'FÄRDIGA'},
-    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'Tavla fram 6 sekunder'},
-    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'Tavla bort'},
-    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'STOPP, PATRON UR'},
-    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'VISITATION'},
+    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'SERIE 1 - 6 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'Tavla fram 6 sekunder', start: 78, stop: 83},
+    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'Tavla bort', start: 84, stop: 85},
+    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 86, stop: 88},
+    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'STOPP, PATRON UR', start: 89, stop: 92},
+    { name: 'Snabbpistol - Serie 1 - 6 sek', action: 'VISITATION', start: 93, stop: 95},
     
-    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'SERIE 2 - 6 SEKUNDER LADDA'},
-    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'FÄRDIGA'},
-    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'Tavla fram 6 sekunder'},
-    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'Tavla bort'},
-    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'STOPP, PATRON UR'},
-    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'VISITATION'},
+    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'SERIE 2 - 6 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'Tavla fram 6 sekunder', start: 78, stop: 83},
+    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'Tavla bort', start: 84, stop: 85},
+    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 86, stop: 88},
+    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'STOPP, PATRON UR', start: 89, stop: 92},
+    { name: 'Snabbpistol - Serie 2 - 6 sek', action: 'VISITATION', start: 93, stop: 95},
     
     //25 METER SNABBPISTOL 4 SEK
-    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'SERIE 1 - 4 SEKUNDER LADDA'},
-    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'FÄRDIGA'},
-    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'Tavla fram 4 sekunder'},
-    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'Tavla bort'},
-    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'STOPP, PATRON UR'},
-    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'VISITATION'},
+    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'SERIE 1 - 4 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'Tavla fram 4 sekunder', start: 78, stop: 81},
+    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'Tavla bort', start: 82, stop: 83},
+    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 84, stop: 86},
+    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'STOPP, PATRON UR', start: 87, stop: 90},
+    { name: 'Snabbpistol - Serie 1 - 4 sek', action: 'VISITATION', start: 91, stop: 93},
     
-    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'SERIE 2 - 4 SEKUNDER LADDA'},
-    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'FÄRDIGA'},
-    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'Tavla fram 4 sekunder'},
-    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'Tavla bort'},
-    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'PATRON UR, PROPPA OCH LÄGG NER VAPNET'},
-    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'VISITATION'},
+    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'SERIE 2 - 4 SEKUNDER LADDA', start: 1, stop: 9},
+    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'Fördröjning 60 sekunder', start: 10, stop: 69},
+    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'FÄRDIGA', start: 70, stop: 70},
+    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'Tavla bort 7 sekunder', start: 71, stop: 77},
+    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'Tavla fram 4 sekunder', start: 78, stop: 81},
+    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'Tavla bort', start: 82, stop: 83},
+    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 84, stop: 86},
+    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'STOPP, PATRON UR', start: 87, stop: 90},
+    { name: 'Snabbpistol - Serie 2 - 4 sek', action: 'VISITATION', start: 91, stop: 93},
     
     //25 METER SPORT/GROVPISTOL PRECISION
-    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'FÖRBEREDELSETID BÖRJAR NU'},
-    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'Fördröjning 180 sekunder'},
-    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'PROVSERIE LADDA'},
-    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'Tavla fram 300 sekunder'},
-    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'FÖRBEREDELSETID BÖRJAR NU', start: 1, stop: 3},
+    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'Fördröjning 180 sekunder', start: 4, stop: 183},
+    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'FÖR PROVSERIE LADDA', start: 184, stop: 186},
+    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'Fördröjning 60 sekunder', start: 187, stop: 246},
+    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'FÄRDIGA', start: 247, stop: 248},
+    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder', start: 249, stop: 255},
+    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'Tavla fram 300 sekunder', start: 256, stop: 555},
+    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'Tavla bort', start: 556, stop: 557},
+    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'STOPP, PATRON UR', start: 558, stop: 561},
+    { name: 'Sport/Grovpistol Förberedelsetid + Provserie', action: 'VISITATION', start: 562, stop: 564},
     
-    { name: 'Sport/Grovpistol Serie 1', action: 'FÖR FÖRSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Serie 1', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Serie 1', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Serie 1', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Serie 1', action: 'Tavla fram 300 sekunder'},
-    { name: 'Sport/Grovpistol Serie 1', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Serie 1', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Serie 1', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Serie 1', action: 'FÖR FÖRSTA TÄVLINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Serie 1', action: 'Fördröjning 60 sekunder', start: 5, stop: 64},
+    { name: 'Sport/Grovpistol Serie 1', action: 'FÄRDIGA', start: 65, stop: 65},
+    { name: 'Sport/Grovpistol Serie 1', action: 'Tavla bort 7 sekunder', start: 66, stop: 72},
+    { name: 'Sport/Grovpistol Serie 1', action: 'Tavla fram 300 sekunder', start: 73, stop: 372},
+    { name: 'Sport/Grovpistol Serie 1', action: 'Tavla bort', start: 373, stop: 374},
+    { name: 'Sport/Grovpistol Serie 1', action: 'STOPP, PATRON UR', start: 375, stop: 378},
+    { name: 'Sport/Grovpistol Serie 1', action: 'VISITATION', start: 379, stop: 381},
     
-    { name: 'Sport/Grovpistol Serie 2', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Serie 2', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Serie 2', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Serie 2', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Serie 2', action: 'Tavla fram 300 sekunder'},
-    { name: 'Sport/Grovpistol Serie 2', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Serie 2', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Serie 2', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Serie 2', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Serie 2', action: 'Fördröjning 60 sekunder', start: 5, stop: 64},
+    { name: 'Sport/Grovpistol Serie 2', action: 'FÄRDIGA', start: 65, stop: 65},
+    { name: 'Sport/Grovpistol Serie 2', action: 'Tavla bort 7 sekunder', start: 66, stop: 72},
+    { name: 'Sport/Grovpistol Serie 2', action: 'Tavla fram 300 sekunder', start: 73, stop: 372},
+    { name: 'Sport/Grovpistol Serie 2', action: 'Tavla bort', start: 373, stop: 374},
+    { name: 'Sport/Grovpistol Serie 2', action: 'STOPP, PATRON UR', start: 375, stop: 378},
+    { name: 'Sport/Grovpistol Serie 2', action: 'VISITATION', start: 379, stop: 381},
     
-    { name: 'Sport/Grovpistol Serie 3', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Serie 3', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Serie 3', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Serie 3', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Serie 3', action: 'Tavla fram 300 sekunder'},
-    { name: 'Sport/Grovpistol Serie 3', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Serie 3', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Serie 3', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Serie 3', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Serie 3', action: 'Fördröjning 60 sekunder', start: 5, stop: 64},
+    { name: 'Sport/Grovpistol Serie 3', action: 'FÄRDIGA', start: 65, stop: 65},
+    { name: 'Sport/Grovpistol Serie 3', action: 'Tavla bort 7 sekunder', start: 66, stop: 72},
+    { name: 'Sport/Grovpistol Serie 3', action: 'Tavla fram 300 sekunder', start: 73, stop: 372},
+    { name: 'Sport/Grovpistol Serie 3', action: 'Tavla bort', start: 373, stop: 374},
+    { name: 'Sport/Grovpistol Serie 3', action: 'STOPP, PATRON UR', start: 375, stop: 378},
+    { name: 'Sport/Grovpistol Serie 3', action: 'VISITATION', start: 379, stop: 381},
     
-    { name: 'Sport/Grovpistol Serie 4', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Serie 4', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Serie 4', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Serie 4', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Serie 4', action: 'Tavla fram 300 sekunder'},
-    { name: 'Sport/Grovpistol Serie 4', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Serie 4', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Serie 4', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Serie 4', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Serie 4', action: 'Fördröjning 60 sekunder', start: 5, stop: 64},
+    { name: 'Sport/Grovpistol Serie 4', action: 'FÄRDIGA', start: 65, stop: 65},
+    { name: 'Sport/Grovpistol Serie 4', action: 'Tavla bort 7 sekunder', start: 66, stop: 72},
+    { name: 'Sport/Grovpistol Serie 4', action: 'Tavla fram 300 sekunder', start: 73, stop: 372},
+    { name: 'Sport/Grovpistol Serie 4', action: 'Tavla bort', start: 373, stop: 374},
+    { name: 'Sport/Grovpistol Serie 4', action: 'STOPP, PATRON UR', start: 375, stop: 378},
+    { name: 'Sport/Grovpistol Serie 4', action: 'VISITATION', start: 379, stop: 381},
     
-    { name: 'Sport/Grovpistol Serie 5', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Serie 5', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Serie 5', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Serie 5', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Serie 5', action: 'Tavla fram 300 sekunder'},
-    { name: 'Sport/Grovpistol Serie 5', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Serie 5', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Serie 5', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Serie 5', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Serie 5', action: 'Fördröjning 60 sekunder', start: 5, stop: 64},
+    { name: 'Sport/Grovpistol Serie 5', action: 'FÄRDIGA', start: 65, stop: 65},
+    { name: 'Sport/Grovpistol Serie 5', action: 'Tavla bort 7 sekunder', start: 66, stop: 72},
+    { name: 'Sport/Grovpistol Serie 5', action: 'Tavla fram 300 sekunder', start: 73, stop: 372},
+    { name: 'Sport/Grovpistol Serie 5', action: 'Tavla bort', start: 373, stop: 374},
+    { name: 'Sport/Grovpistol Serie 5', action: 'STOPP, PATRON UR', start: 375, stop: 378},
+    { name: 'Sport/Grovpistol Serie 5', action: 'VISITATION', start: 379, stop: 381},
     
-    { name: 'Sport/Grovpistol Serie 6', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Serie 6', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Serie 6', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Serie 6', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Serie 6', action: 'Tavla fram 300 sekunder'},
-    { name: 'Sport/Grovpistol Serie 6', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Serie 6', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Serie 6', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Serie 6', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Serie 6', action: 'Fördröjning 60 sekunder', start: 5, stop: 64},
+    { name: 'Sport/Grovpistol Serie 6', action: 'FÄRDIGA', start: 65, stop: 65},
+    { name: 'Sport/Grovpistol Serie 6', action: 'Tavla bort 7 sekunder', start: 66, stop: 72},
+    { name: 'Sport/Grovpistol Serie 6', action: 'Tavla fram 300 sekunder', start: 73, stop: 372},
+    { name: 'Sport/Grovpistol Serie 6', action: 'Tavla bort', start: 374, stop: 375},
+    { name: 'Sport/Grovpistol Serie 6', action: 'STOPP, PATRON UR', start: 375, stop: 378},
+    { name: 'Sport/Grovpistol Serie 6', action: 'VISITATION', start: 379, stop: 381},
     
     //25 METER SPORT/GROVPISTOL SNABBSKJUTNING
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'FÖRBEREDELSETID BÖRJAR NU'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Fördröjning 180 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'PROVSERIE LADDA'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'FÖRBEREDELSETID BÖRJAR NU', start: 1, stop: 3},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Fördröjning 180 sekunder', start: 4, stop: 183},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'FÖR PROVSERIE LADDA', start: 184, stop: 186},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Fördröjning 60 sekunder', start: 187, stop: 246},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'FÄRDIGA', start: 247, stop: 247},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder', start: 248, stop: 254},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla fram 3 sekunder', start: 255, stop: 257},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder', start: 258, stop: 264},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla fram 3 sekunder', start: 265, stop: 267},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder', start: 268, stop: 274},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla fram 3 sekunder', start: 275, stop: 277},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder', start: 278, stop: 284},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla fram 3 sekunder', start: 285, stop: 287},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder', start: 288, stop: 294},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla fram 3 sekunder', start: 295, stop: 297},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'Tavla bort', start: 298, stop: 299},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 300, stop: 306},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'STOPP, PATRON UR', start: 307, stop: 310},
+    { name: 'Sport/Grovpistol Snabb Förberedelsetid + Provserie', action: 'VISITATION', start: 311, stop: 313},
     
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'FÖR FÖRSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'FÖR FÖRSTA TÄVLINGSSERIE LADDA', start: 1, stop: 3},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Fördröjning 60 sekunder', start: 4, stop: 63},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'FÄRDIGA', start: 64, stop: 64},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort 7 sekunder', start: 65, stop: 71},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla fram 3 sekunder', start: 72, stop: 74},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort 7 sekunder', start: 75, stop: 81},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla fram 3 sekunder', start: 82, stop: 84},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort 7 sekunder', start: 85, stop: 91},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla fram 3 sekunder', start: 92, stop: 94},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort 7 sekunder', start: 95, stop: 101},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla fram 3 sekunder', start: 102, stop: 104},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort 7 sekunder', start: 105, stop: 111},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla fram 3 sekunder', start: 112, stop: 114},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'Tavla bort', start: 115, stop: 116},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 117, stop: 124},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'STOPP, PATRON UR', start: 125, stop: 128},
+    { name: 'Sport/Grovpistol Snabb Serie 1', action: 'VISITATION', start: 129, stop: 131},
     
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Fördröjning 60 sekunder', start: 4, stop: 63},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'FÄRDIGA', start: 64, stop: 64},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort 7 sekunder', start: 65, stop: 71},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla fram 3 sekunder', start: 72, stop: 74},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort 7 sekunder', start: 75, stop: 81},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla fram 3 sekunder', start: 82, stop: 84},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort 7 sekunder', start: 85, stop: 91},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla fram 3 sekunder', start: 92, stop: 94},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort 7 sekunder', start: 95, stop: 101},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla fram 3 sekunder', start: 102, stop: 104},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort 7 sekunder', start: 105, stop: 111},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla fram 3 sekunder', start: 112, stop: 114},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'Tavla bort', start: 115, stop: 116},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 117, stop: 124},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'STOPP, PATRON UR', start: 125, stop: 128},
+    { name: 'Sport/Grovpistol Snabb Serie 2', action: 'VISITATION', start: 129, stop: 131},
     
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Fördröjning 60 sekunder', start: 4, stop: 63},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'FÄRDIGA', start: 64, stop: 64},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort 7 sekunder', start: 65, stop: 71},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla fram 3 sekunder', start: 72, stop: 74},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort 7 sekunder', start: 75, stop: 81},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla fram 3 sekunder', start: 82, stop: 84},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort 7 sekunder', start: 85, stop: 91},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla fram 3 sekunder', start: 92, stop: 94},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort 7 sekunder', start: 95, stop: 101},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla fram 3 sekunder', start: 102, stop: 104},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort 7 sekunder', start: 105, stop: 111},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla fram 3 sekunder', start: 112, stop: 114},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'Tavla bort', start: 115, stop: 116},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 117, stop: 124},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'STOPP, PATRON UR', start: 125, stop: 128},
+    { name: 'Sport/Grovpistol Snabb Serie 3', action: 'VISITATION', start: 129, stop: 131},
     
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Fördröjning 60 sekunder', start: 4, stop: 63},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'FÄRDIGA', start: 64, stop: 64},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort 7 sekunder', start: 65, stop: 71},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla fram 3 sekunder', start: 72, stop: 74},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort 7 sekunder', start: 75, stop: 81},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla fram 3 sekunder', start: 82, stop: 84},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort 7 sekunder', start: 85, stop: 91},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla fram 3 sekunder', start: 92, stop: 94},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort 7 sekunder', start: 95, stop: 101},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla fram 3 sekunder', start: 102, stop: 104},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort 7 sekunder', start: 105, stop: 111},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla fram 3 sekunder', start: 112, stop: 114},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'Tavla bort', start: 115, stop: 116},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 117, stop: 124},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'STOPP, PATRON UR', start: 125, stop: 128},
+    { name: 'Sport/Grovpistol Snabb Serie 4', action: 'VISITATION', start: 129, stop: 131},
     
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Fördröjning 60 sekunder', start: 4, stop: 63},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'FÄRDIGA', start: 64, stop: 64},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort 7 sekunder', start: 65, stop: 71},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla fram 3 sekunder', start: 72, stop: 74},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort 7 sekunder', start: 75, stop: 81},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla fram 3 sekunder', start: 82, stop: 84},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort 7 sekunder', start: 85, stop: 91},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla fram 3 sekunder', start: 92, stop: 94},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort 7 sekunder', start: 95, stop: 101},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla fram 3 sekunder', start: 102, stop: 104},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort 7 sekunder', start: 105, stop: 111},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla fram 3 sekunder', start: 112, stop: 114},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'Tavla bort', start: 115, stop: 116},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 117, stop: 124},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'STOPP, PATRON UR', start: 125, stop: 128},
+    { name: 'Sport/Grovpistol Snabb Serie 5', action: 'VISITATION', start: 129, stop: 131},
     
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'FÖR NÄSTA TÄVLINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Fördröjning 60 sekunder', start: 4, stop: 63},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'FÄRDIGA', start: 64, stop: 64},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort 7 sekunder', start: 65, stop: 71},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla fram 3 sekunder', start: 72, stop: 74},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort 7 sekunder', start: 75, stop: 81},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla fram 3 sekunder', start: 82, stop: 84},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort 7 sekunder', start: 85, stop: 91},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla fram 3 sekunder', start: 92, stop: 94},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort 7 sekunder', start: 95, stop: 101},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla fram 3 sekunder', start: 102, stop: 104},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort 7 sekunder', start: 105, stop: 111},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla fram 3 sekunder', start: 112, stop: 114},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'Tavla bort', start: 115, stop: 116},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 117, stop: 124},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'STOPP, PATRON UR', start: 125, stop: 128},
+    { name: 'Sport/Grovpistol Snabb Serie 6', action: 'VISITATION', start: 129, stop: 131},
     
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'FÖR KOMPLETTERINGSSERIE LADDA'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Fördröjning 60 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'FÄRDIGA'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla fram 3 sekunder'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'STOPP, PATRON UR'},
-    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'VISITATION'},
-    
-    //25 METER STANDARDPISTOL
-    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'FÖRBEREDELSETID BÖRJAR NU'},
-    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'Fördröjning 180 sekunder'},
-    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'PROVSERIE LADDA'},
-    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'Fördröjning 60 sekunder'},
-    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'FÄRDIGA'},
-    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder'},
-    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'Tavla fram 150 sekunder'},
-    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'Tavla bort'},
-    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'STOPP, PATRON UR'},
-    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'VISITATION'},
-    
-    { name: 'Standardpistol 150 sek', action: 'SERIE 150 SEKUNDER LADDA'},
-    { name: 'Standardpistol 150 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Standardpistol 150 sek', action: 'FÄRDIGA'},
-    { name: 'Standardpistol 150 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Standardpistol 150 sek', action: 'Tavla fram 150 sekunder'},
-    { name: 'Standardpistol 150 sek', action: 'Tavla bort'},
-    { name: 'Standardpistol 150 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Standardpistol 150 sek', action: 'STOPP, PATRON UR'},
-    { name: 'Standardpistol 150 sek', action: 'VISITATION'},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'FÖR KOMPLETTERINGSSERIE LADDA', start: 1, stop: 4},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Fördröjning 60 sekunder', start: 4, stop: 63},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'FÄRDIGA', start: 64, stop: 64},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort 7 sekunder', start: 65, stop: 71},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla fram 3 sekunder', start: 72, stop: 74},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort 7 sekunder', start: 75, stop: 81},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla fram 3 sekunder', start: 82, stop: 84},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort 7 sekunder', start: 85, stop: 91},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla fram 3 sekunder', start: 92, stop: 94},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort 7 sekunder', start: 95, stop: 101},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla fram 3 sekunder', start: 102, stop: 104},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort 7 sekunder', start: 105, stop: 111},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla fram 3 sekunder', start: 112, stop: 114},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'Tavla bort', start: 115, stop: 116},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 117, stop: 124},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'STOPP, PATRON UR', start: 125, stop: 128},
+    { name: 'Sport/Grovpistol Snabb Kompletteringsserie', action: 'VISITATION', start: 129, stop: 131},
         
-    { name: 'Standardpistol 20 sek', action: 'SERIE 20 SEKUNDER LADDA'},
-    { name: 'Standardpistol 20 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Standardpistol 20 sek', action: 'FÄRDIGA'},
-    { name: 'Standardpistol 20 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Standardpistol 20 sek', action: 'Tavla fram 20 sekunder'},
-    { name: 'Standardpistol 20 sek', action: 'Tavla bort'},
-    { name: 'Standardpistol 20 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Standardpistol 20 sek', action: 'STOPP, PATRON UR'},
-    { name: 'Standardpistol 20 sek', action: 'VISITATION'},
+    //25 METER STANDARDPISTOL
+    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'FÖRBEREDELSETID BÖRJAR NU', start: 1, stop: 3},
+    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'Fördröjning 180 sekunder', start: 4, stop: 183},
+    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'PROVSERIE 150 SEKUNDER LADDA', start: 184, stop: 190},
+    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'Fördröjning 60 sekunder', start: 191, stop: 250},
+    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'FÄRDIGA', start: 251, stop: 251},
+    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'Tavla bort 7 sekunder', start: 252, stop: 258},
+    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'Tavla fram 150 sekunder', start: 259, stop: 408},
+    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'Tavla bort', start: 409, stop: 410},
+    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 411, stop: 418},
+    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'STOPP, PATRON UR', start: 419, stop: 422},
+    { name: 'Standardpistol Förberedelsetid + Provserie', action: 'VISITATION', start: 423, stop: 425},
     
-    { name: 'Standardpistol 10 sek', action: 'SERIE 10 SEKUNDER LADDA'},
-    { name: 'Standardpistol 10 sek', action: 'Fördröjning 60 sekunder'},
-    { name: 'Standardpistol 10 sek', action: 'FÄRDIGA'},
-    { name: 'Standardpistol 10 sek', action: 'Tavla bort 7 sekunder'},
-    { name: 'Standardpistol 10 sek', action: 'Tavla fram 10 sekunder'},
-    { name: 'Standardpistol 10 sek', action: 'Tavla bort'},
-    { name: 'Standardpistol 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?'},
-    { name: 'Standardpistol 10 sek', action: 'STOPP, PATRON UR'},
-    { name: 'Standardpistol 10 sek', action: 'VISITATION'},
+    { name: 'Standardpistol 150 sek', action: '150 SEKUNDERS SERIE LADDA', start: 1, stop: 4},
+    { name: 'Standardpistol 150 sek', action: 'Fördröjning 60 sekunder', start: 5, stop: 64},
+    { name: 'Standardpistol 150 sek', action: 'FÄRDIGA', start: 65, stop: 65},
+    { name: 'Standardpistol 150 sek', action: 'Tavla bort 7 sekunder', start: 66, stop: 72},
+    { name: 'Standardpistol 150 sek', action: 'Tavla fram 150 sekunder', start: 73, stop: 222},
+    { name: 'Standardpistol 150 sek', action: 'Tavla bort', start: 223, stop: 224},
+    { name: 'Standardpistol 150 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 225, stop: 230},
+    { name: 'Standardpistol 150 sek', action: 'STOPP, PATRON UR', start: 231, stop: 234},
+    { name: 'Standardpistol 150 sek', action: 'VISITATION', start: 235, stop: 237},
+        
+    { name: 'Standardpistol 20 sek', action: '20 SEKUNDERS SERIE LADDA', start: 1, stop: 4},
+    { name: 'Standardpistol 20 sek', action: 'Fördröjning 60 sekunder', start: 5, stop: 64},
+    { name: 'Standardpistol 20 sek', action: 'FÄRDIGA', start: 65, stop: 65},
+    { name: 'Standardpistol 20 sek', action: 'Tavla bort 7 sekunder', start: 66, stop: 72},
+    { name: 'Standardpistol 20 sek', action: 'Tavla fram 20 sekunder', start: 73, stop: 92},
+    { name: 'Standardpistol 20 sek', action: 'Tavla bort', start: 93, stop: 94},
+    { name: 'Standardpistol 20 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 95, stop: 100},
+    { name: 'Standardpistol 20 sek', action: 'STOPP, PATRON UR', start: 101, stop: 104},
+    { name: 'Standardpistol 20 sek', action: 'VISITATION', start: 105, stop: 107},
+    
+    { name: 'Standardpistol 10 sek', action: '10 SEKUNDERS SERIE LADDA', start: 1, stop: 4},
+    { name: 'Standardpistol 10 sek', action: 'Fördröjning 60 sekunder', start: 5, stop: 64},
+    { name: 'Standardpistol 10 sek', action: 'FÄRDIGA', start: 65, stop: 65},
+    { name: 'Standardpistol 10 sek', action: 'Tavla bort 7 sekunder', start: 66, stop: 72},
+    { name: 'Standardpistol 10 sek', action: 'Tavla fram 10 sekunder', start: 73, stop: 82},
+    { name: 'Standardpistol 10 sek', action: 'Tavla bort', start: 83, stop: 84},
+    { name: 'Standardpistol 10 sek', action: 'NÅGRA FUNKTIONERINGSFEL?', start: 85, stop: 90},
+    { name: 'Standardpistol 10 sek', action: 'STOPP, PATRON UR', start: 91, stop: 94},
+    { name: 'Standardpistol 10 sek', action: 'VISITATION', start: 95, stop: 97},
     
     //FÄLT RÖRLIGA MÅL
-    { name: 'Fält Rörlig - 16 sek', action: 'LADDA'},
-    { name: 'Fält Rörlig - 16 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig - 16 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig - 16 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 16 sek', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig - 16 sek', action: 'Tavla fram 16 sekunder'},
-    { name: 'Fält Rörlig - 16 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 16 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig - 16 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig - 16 sek', action: 'VISITATION'},
+    { name: 'Fält Rörlig - 16 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig - 16 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig - 16 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig - 16 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 43},
+    { name: 'Fält Rörlig - 16 sek', action: 'Fördröjning 7 sekunder', start: 44, stop: 50},
+    { name: 'Fält Rörlig - 16 sek', action: 'FÄRDIGA', start: 51, stop: 51},
+    { name: 'Fält Rörlig - 16 sek', action: 'Fördröjning 3 sekunder', start: 52, stop: 54},
+    { name: 'Fält Rörlig - 16 sek', action: 'Tavla fram 16 sekunder', start: 55, stop: 70},
+    { name: 'Fält Rörlig - 16 sek', action: 'Tavla bort', start: 71, stop: 72},
+    { name: 'Fält Rörlig - 16 sek', action: 'ELD UPPHÖR', start: 73, stop: 75},
+    { name: 'Fält Rörlig - 16 sek', action: 'PATRON UR, PROPPA VAPEN', start: 76, stop: 78},
+    { name: 'Fält Rörlig - 16 sek', action: 'VISITATION', start: 79, stop: 81},
     
     { name: 'Fält Rörlig - 14 sek', action: 'LADDA'},
     { name: 'Fält Rörlig - 14 sek', action: 'ALLA KLARA?'},
@@ -1595,6 +1708,9 @@ const programsId = [
     { name: 'Militär Snabbmatch - Kompletteringserie - 10 sek', id: 35},
     { name: 'Militär Snabbmatch - Kompletteringserie - 8 sek', id: 36},
     { name: 'Militär Snabbmatch - Kompletteringserie - 6 sek', id: 37},
+    { name: 'Militär Snabbmatch - Träningsserie - 10 sek', id: 110},
+    { name: 'Militär Snabbmatch - Träningsserie - 8 sek', id: 111},
+    { name: 'Militär Snabbmatch - Träningsserie - 6 sek', id: 112},
     
     //SNABBPISTOL
     //{ name: 'Snabbpistol Förberedelsetid', id: 40},
