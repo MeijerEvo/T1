@@ -48,10 +48,15 @@
                 <p class="card-title">Bana</p>
                 
                 <form>
-                  <input type="checkbox" class="largerCheckbox" id="lane1" onclick="lane1Checked()" name="lane1" checked="true">
-                  <label for="lane1" class="switch" > Bana 1</label>
-                  <input type="checkbox" class="largerCheckbox" id="lane2" onclick="lane2Checked()" name="lane2" checked="true">
-                  <label for="lane2" class="switch" > Bana 2</label><br>
+                    <label class="container">Bana vänster 
+                    <input type="checkbox" id="lane1" onclick="lane1Checked()">
+                    <span class="checkmark"></span>
+                    </label>
+
+                    <label class="container"> Bana höger 
+                    <input type="checkbox" id="lane2" onclick="lane2Checked()">
+                    <span class="checkmark"></span>
+                    </label>
                 </form>
                   
                 <br><br />
@@ -78,7 +83,7 @@
                 
             </div> 
         </div>
-        <p class="switch"><input type="button" class="buttonGreen" value="HEM" onclick="location.href='index.html'"></p> 
+        <p class="switch"><input type="button" class="buttonSmall" value="HEM" onclick="location.href='index.html'"></p> 
     </div>
     <p class="version" id="versionText" ></p>
     <br><br />
