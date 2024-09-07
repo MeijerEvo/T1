@@ -17,6 +17,7 @@ var programIndex;
 //Program running flags
 var program = new Boolean(false);
 var preProgram = new Boolean(false);
+var preProgramManuell = new Boolean(false);
 
 var progressValue = 0;
 var programPos = 0;
@@ -70,6 +71,9 @@ function startProgramLoad() {
             document.getElementById("programTitle").innerHTML = programsId[i].name;
             choosenProgram = programsId[i].name;
             //Fill table
+            
+           
+            
             updateProgramList(programsId[i].name);
         }   
     }  
@@ -151,11 +155,7 @@ function onMessage(event) {
                 preProgress.value = (preProgressValue - myObj[key]+1);
                
                 programPos = (preProgressValue - myObj[key]+1);
-                
-               
-                
-                //document.getElementById("preProgramTimerTime").innerHTML = (preProgressValue - myObj[key]+1);
-            
+                      
                 
                 preProgram = true;
                 
@@ -178,48 +178,18 @@ function onMessage(event) {
                 document.getElementById("preProgramExtra").style.backgroundColor = '#32612D';
                 
                 //Reset timer value
-                //document.getElementById("preProgramTimerTime").innerHTML = 0;
-                
+                //document.getElementById("preProgramTimerTime").innerHTML = 0;      
                 
                 //Reset progress bar
                 const preProgress = document.getElementById("preProgramProgress");
                 preProgress.value = 0;
                 
-                /*
-                //Clear table
-                let table1 = document.getElementById('programsTable');
-     
-                table1.innerHTML = "";
-                programPos = 0;
+                //Reset big counter
+                document.getElementById("preProgramTimerTime").innerHTML = "0";
                 
-                //Update program list
-                for (var i = 0; i < programs.length; ++i) {
-
-                    //Filter out the program items 
-                    if (programs[i].name == choosenProgram) {
-
-                        //Create row
-                        let tr = document.createElement('tr');          
-
-                        //Columns
-                        let td2 = document.createElement('td');
-                        
-                        td2.textContent = programs[i].action;
-                        td2.style.color = "#000000";
-                            
-                        //Add to row
-                        tr.appendChild(td2);
-
-                        //Add to table
-                        table1.appendChild(tr);
-
-                    } 
-                }*/
+                //Reset table
+                updateProgramList(choosenProgram);
                 
-               
-                
-                //Enable reset button
-               // document.getElementById("preProgramResetSliders").disabled = false;
                 
 
             }
@@ -368,6 +338,13 @@ function preProgramStartStop() {
 
                     //Send message
                      websocket.send("preProgramStart" + lane1 + lane2 + preProgramId);
+                    
+                    //Flag
+                    preProgramManuell = true;
+                    
+                    //Change button
+                    document.getElementById("preProgramStartStopButton").value = "STOPPA PROGRAM";
+                    document.getElementById("preProgramStartStopButton").style.backgroundColor = 'red'; 
 
 
                   //  }
@@ -376,37 +353,25 @@ function preProgramStartStop() {
                      websocket.send("preProgramStop");
                    
                     //Clear table
-                   // let table1 = document.getElementById('programsTable');
-                   let table1 = document.querySelector("#programsTable tbody"); 
+                    // let table1 = document.getElementById('programsTable');
+                    let table1 = document.querySelector("#programsTable tbody"); 
      
                     table1.innerHTML = "";
                     programPos = 0;
-
-
-                    //Update program list
-                    for (var i = 0; i < programs.length; ++i) {
-
-                        //Filter out the program items 
-                        if (programs[i].name == choosenProgram) {
-
-                            //Create row
-                            let tr = document.createElement('tr');          
-
-                            //Columns
-                            let td2 = document.createElement('td');
-                            
-                            td2.textContent = programs[i].action;
-                            td2.style.color = "#000000";
-                            
-                            //Add to row
-                            tr.appendChild(td2);
-
-                            //Add to table
-                            table1.appendChild(tr);
-
-                        } 
-                    }
-
+                   
+                    //Flag
+                    preProgramManuell = false;
+                   
+                    //Button
+                    document.getElementById("preProgramStartStopButton").value = "STARTA PROGRAM";
+                    document.getElementById("preProgramStartStopButton").style.backgroundColor = '#32612D';
+                    
+                    //Update list
+                    updateProgramList(choosenProgram);
+                   
+                    //Reset big counter
+                    document.getElementById("preProgramTimerTime").innerHTML = "0";
+                    
                    
                } 
          }
@@ -466,16 +431,48 @@ function updateProgramList(selectValue) {
             let tr = document.createElement('tr');          
             
             //Columns
-             let td2 = document.createElement('td');
+            let td1 = document.createElement('td');
+            let td2 = document.createElement('td');
             
-            //Check if this row is to have the arrow indicator
-            //Where are we in the program?
+            //Which image?
+            td1.innerHTML = "";
+              
+            //Target
+            if (programs[i].action.substring(0, 10) == "Tavla fram") { 
+                td1.innerHTML = '<img src="target.png" alt="" height="24" width="24"</img>';
+            }
+            
+            
+            //Away
+            if (programs[i].action.substring(0, 10) == "Tavla bort") { 
+                td1.innerHTML = '<img src="away.png" alt="" height="24" width="24"</img>';
+            }
+            
+            //Timer
+            if (programs[i].action.substring(0, 11) == "Fördröjning") { 
+                td1.innerHTML = '<img src="timer.png" alt="" height="24" width="24"</img>';
+            }
+            
+            //Speaker (Second character is uppercase)
+            if (programs[i].action.substring(1, 2) == programs[i].action.substring(1, 2).toUpperCase()) { 
+                td1.innerHTML = '<img src="sound.png" alt="" height="24" width="24"</img>';
+            }
+      
+            
+            
             
             if (programPos >= programs[i].start && programPos <= programs[i].stop) {
-  
+                
                 td2.textContent = programs[i].action + " = " + (programs[i].stop - programPos+1);
-                td2.style.color = "#FF0000";
-        
+              
+                td2.style.border = "solid #0000FF";
+                td2.style.borderRadius = "10px";
+                td2.style.color = "#000000";
+                
+                //Show big counter
+                document.getElementById("preProgramTimerTime").innerHTML = (programs[i].stop - programPos+1);
+               
+ 
             } else {
                 
                 td2.textContent = programs[i].action;
@@ -483,6 +480,7 @@ function updateProgramList(selectValue) {
             }  
   
             //Add to row
+            tr.appendChild(td1);
             tr.appendChild(td2);
             
             //Add to table
@@ -1299,376 +1297,434 @@ const programs = [
     { name: 'Fält Rörlig - 16 sek', action: 'LADDA', start: 1, stop: 3},
     { name: 'Fält Rörlig - 16 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
     { name: 'Fält Rörlig - 16 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
-    { name: 'Fält Rörlig - 16 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 43},
-    { name: 'Fält Rörlig - 16 sek', action: 'Fördröjning 7 sekunder', start: 44, stop: 50},
-    { name: 'Fält Rörlig - 16 sek', action: 'FÄRDIGA', start: 51, stop: 51},
-    { name: 'Fält Rörlig - 16 sek', action: 'Fördröjning 3 sekunder', start: 52, stop: 54},
-    { name: 'Fält Rörlig - 16 sek', action: 'Tavla fram 16 sekunder', start: 55, stop: 70},
-    { name: 'Fält Rörlig - 16 sek', action: 'Tavla bort', start: 71, stop: 72},
-    { name: 'Fält Rörlig - 16 sek', action: 'ELD UPPHÖR', start: 73, stop: 75},
-    { name: 'Fält Rörlig - 16 sek', action: 'PATRON UR, PROPPA VAPEN', start: 76, stop: 78},
-    { name: 'Fält Rörlig - 16 sek', action: 'VISITATION', start: 79, stop: 81},
+    { name: 'Fält Rörlig - 16 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig - 16 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig - 16 sek', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig - 16 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig - 16 sek', action: 'Tavla fram 16 sekunder', start: 53, stop: 68},
+    { name: 'Fält Rörlig - 16 sek', action: 'Tavla bort', start: 69, stop: 70},
+    { name: 'Fält Rörlig - 16 sek', action: 'ELD UPPHÖR', start: 71, stop: 75},
+    { name: 'Fält Rörlig - 16 sek', action: 'PATRON UR, PROPPA VAPEN', start: 76, stop: 80},
+    { name: 'Fält Rörlig - 16 sek', action: 'VISITATION', start: 81, stop: 83},
     
-    { name: 'Fält Rörlig - 14 sek', action: 'LADDA'},
-    { name: 'Fält Rörlig - 14 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig - 14 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig - 14 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 14 sek', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig - 14 sek', action: 'Tavla fram 14 sekunder'},
-    { name: 'Fält Rörlig - 14 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 14 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig - 14 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig - 14 sek', action: 'VISITATION'},
+    { name: 'Fält Rörlig - 14 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig - 14 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig - 14 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig - 14 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig - 14 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig - 14 sek', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig - 14 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig - 14 sek', action: 'Tavla fram 14 sekunder', start: 53, stop: 66},
+    { name: 'Fält Rörlig - 14 sek', action: 'Tavla bort', start: 67, stop: 68},
+    { name: 'Fält Rörlig - 14 sek', action: 'ELD UPPHÖR', start: 69, stop: 73},
+    { name: 'Fält Rörlig - 14 sek', action: 'PATRON UR, PROPPA VAPEN', start: 74, stop: 78},
+    { name: 'Fält Rörlig - 14 sek', action: 'VISITATION', start: 79, stop: 81},
     
-    { name: 'Fält Rörlig - 12 sek', action: 'LADDA'},
-    { name: 'Fält Rörlig - 12 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig - 12 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig - 12 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 12 sek', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig - 12 sek', action: 'Tavla fram 12 sekunder'},
-    { name: 'Fält Rörlig - 12 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 12 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig - 12 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig - 12 sek', action: 'VISITATION'},
+    { name: 'Fält Rörlig - 12 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig - 12 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig - 12 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig - 12 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig - 12 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig - 12 sek', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig - 12 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig - 12 sek', action: 'Tavla fram 12 sekunder', start: 53, stop: 64},
+    { name: 'Fält Rörlig - 12 sek', action: 'Tavla bort', start: 65, stop: 66},
+    { name: 'Fält Rörlig - 12 sek', action: 'ELD UPPHÖR', start: 67, stop: 71},
+    { name: 'Fält Rörlig - 12 sek', action: 'PATRON UR, PROPPA VAPEN', start: 72, stop: 76},
+    { name: 'Fält Rörlig - 12 sek', action: 'VISITATION', start: 77, stop: 79},
     
-    { name: 'Fält Rörlig - 10 sek', action: 'LADDA'},
-    { name: 'Fält Rörlig - 10 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig - 10 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig - 10 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 10 sek', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig - 10 sek', action: 'Tavla fram 10 sekunder'},
-    { name: 'Fält Rörlig - 10 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 10 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig - 10 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig - 10 sek', action: 'VISITATION'},
+    { name: 'Fält Rörlig - 10 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig - 10 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig - 10 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig - 10 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig - 10 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig - 10 sek', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig - 10 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig - 10 sek', action: 'Tavla fram 10 sekunder', start: 53, stop: 62},
+    { name: 'Fält Rörlig - 10 sek', action: 'Tavla bort', start: 63, stop: 64},
+    { name: 'Fält Rörlig - 10 sek', action: 'ELD UPPHÖR', start: 65, stop: 69},
+    { name: 'Fält Rörlig - 10 sek', action: 'PATRON UR, PROPPA VAPEN', start: 70, stop: 74},
+    { name: 'Fält Rörlig - 10 sek', action: 'VISITATION', start: 75, stop: 77},
     
-    { name: 'Fält Rörlig - 8 sek', action: 'LADDA'},
-    { name: 'Fält Rörlig - 8 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig - 8 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig - 8 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 8 sek', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig - 8 sek', action: 'Tavla fram 8 sekunder'},
-    { name: 'Fält Rörlig - 8 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 8 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig - 8 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig - 8 sek', action: 'VISITATION'},
+    { name: 'Fält Rörlig - 8 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig - 8 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig - 8 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig - 8 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig - 8 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig - 8 sek', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig - 8 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig - 8 sek', action: 'Tavla fram 8 sekunder', start: 53, stop: 60},
+    { name: 'Fält Rörlig - 8 sek', action: 'Tavla bort', start: 61, stop: 62},
+    { name: 'Fält Rörlig - 8 sek', action: 'ELD UPPHÖR', start: 63, stop: 67},
+    { name: 'Fält Rörlig - 8 sek', action: 'PATRON UR, PROPPA VAPEN', start: 68, stop: 72},
+    { name: 'Fält Rörlig - 8 sek', action: 'VISITATION', start: 73, stop: 75},
     
-    { name: 'Fält Rörlig - 6 sek', action: 'LADDA'},
-    { name: 'Fält Rörlig - 6 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig - 6 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig - 6 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 6 sek', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig - 6 sek', action: 'Tavla fram 6 sekunder'},
-    { name: 'Fält Rörlig - 6 sek', action: 'Tavla bort'},
-    { name: 'Fält Rörlig - 6 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig - 6 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig - 6 sek', action: 'VISITATION'},
+    { name: 'Fält Rörlig - 6 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig - 6 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig - 6 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig - 6 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig - 6 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig - 6 sek', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig - 6 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig - 6 sek', action: 'Tavla fram 6 sekunder', start: 53, stop: 58},
+    { name: 'Fält Rörlig - 6 sek', action: 'Tavla bort', start: 59, stop: 60},
+    { name: 'Fält Rörlig - 6 sek', action: 'ELD UPPHÖR', start: 61, stop: 65},
+    { name: 'Fält Rörlig - 6 sek', action: 'PATRON UR, PROPPA VAPEN', start: 66, stop: 70},
+    { name: 'Fält Rörlig - 6 sek', action: 'VISITATION', start: 71, stop: 73},
     
-    { name: 'Fält Rörlig 2x8/8', action: 'LADDA'},
-    { name: 'Fält Rörlig 2x8/8', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 2x8/8', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 2x8/8', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 2x8/8', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 2x8/8', action: 'Tavla fram 8 sekunder'},
-    { name: 'Fält Rörlig 2x8/8', action: 'Tavla bort 8 sekunder'},
-    { name: 'Fält Rörlig 2x8/8', action: 'Tavla fram 8 sekunder'},
-    { name: 'Fält Rörlig 2x8/8', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 2x8/8', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 2x8/8', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 2x8/8', action: 'VISITATION'},
+    { name: 'Fält Rörlig 2x8/8', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 2x8/8', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 2x8/8', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 2x8/8', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 2x8/8', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 2x8/8', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 2x8/8', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 2x8/8', action: 'Tavla fram 8 sekunder', start: 53, stop: 60},
+    { name: 'Fält Rörlig 2x8/8', action: 'Tavla bort 8 sekunder', start: 61, stop: 68},
+    { name: 'Fält Rörlig 2x8/8', action: 'Tavla fram 8 sekunder', start: 69, stop: 76},
+    { name: 'Fält Rörlig 2x8/8', action: 'Tavla bort', start: 77, stop: 78},
+    { name: 'Fält Rörlig 2x8/8', action: 'ELD UPPHÖR', start: 79, stop: 84},
+    { name: 'Fält Rörlig 2x8/8', action: 'PATRON UR, PROPPA VAPEN', start: 85, stop: 89},
+    { name: 'Fält Rörlig 2x8/8', action: 'VISITATION', start: 90, stop: 92},
     
-    { name: 'Fält Rörlig 2x6/6', action: 'LADDA'},
-    { name: 'Fält Rörlig 2x6/6', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 2x6/6', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 2x6/6', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 2x6/6', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 2x6/6', action: 'Tavla fram 6 sekunder'},
-    { name: 'Fält Rörlig 2x6/6', action: 'Tavla bort 6 sekunder'},
-    { name: 'Fält Rörlig 2x6/6', action: 'Tavla fram 6 sekunder'},
-    { name: 'Fält Rörlig 2x6/6', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 2x6/6', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 2x6/6', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 2x6/6', action: 'VISITATION'},
+    { name: 'Fält Rörlig 2x6/6', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 2x6/6', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 2x6/6', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 2x6/6', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 2x6/6', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 2x6/6', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 2x6/6', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 2x6/6', action: 'Tavla fram 6 sekunder', start: 53, stop: 58},
+    { name: 'Fält Rörlig 2x6/6', action: 'Tavla bort 6 sekunder', start: 59, stop: 64},
+    { name: 'Fält Rörlig 2x6/6', action: 'Tavla fram 6 sekunder', start: 65, stop: 70},
+    { name: 'Fält Rörlig 2x6/6', action: 'Tavla bort', start: 71, stop: 72},
+    { name: 'Fält Rörlig 2x6/6', action: 'ELD UPPHÖR', start: 73, stop: 78},
+    { name: 'Fält Rörlig 2x6/6', action: 'PATRON UR, PROPPA VAPEN', start: 79, stop: 83},
+    { name: 'Fält Rörlig 2x6/6', action: 'VISITATION', start: 84, stop: 86},
     
-    { name: 'Fält Rörlig 2x5/5', action: 'LADDA'},
-    { name: 'Fält Rörlig 2x5/5', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 2x5/5', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 2x5/5', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 2x5/5', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 2x5/5', action: 'Tavla fram 5 sekunder'},
-    { name: 'Fält Rörlig 2x5/5', action: 'Tavla bort 5 sekunder'},
-    { name: 'Fält Rörlig 2x5/5', action: 'Tavla fram 5 sekunder'},
-    { name: 'Fält Rörlig 2x5/5', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 2x5/5', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 2x5/5', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 2x5/5', action: 'VISITATION'},
+    { name: 'Fält Rörlig 2x5/5', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 2x5/5', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 2x5/5', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 2x5/5', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 2x5/5', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 2x5/5', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 2x5/5', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 2x5/5', action: 'Tavla fram 5 sekunder', start: 53, stop: 57},
+    { name: 'Fält Rörlig 2x5/5', action: 'Tavla bort 5 sekunder', start: 58, stop: 62},
+    { name: 'Fält Rörlig 2x5/5', action: 'Tavla fram 5 sekunder', start: 63, stop: 67},
+    { name: 'Fält Rörlig 2x5/5', action: 'Tavla bort', start: 68, stop: 69},
+    { name: 'Fält Rörlig 2x5/5', action: 'ELD UPPHÖR', start: 70, stop: 75},
+    { name: 'Fält Rörlig 2x5/5', action: 'PATRON UR, PROPPA VAPEN', start: 76, stop: 80},
+    { name: 'Fält Rörlig 2x5/5', action: 'VISITATION', start: 81, stop: 83},
     
-    { name: 'Fält Rörlig 2x4/4', action: 'LADDA'},
-    { name: 'Fält Rörlig 2x4/4', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 2x4/4', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 2x4/4', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 2x4/4', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 2x4/4', action: 'Tavla fram 4 sekunder'},
-    { name: 'Fält Rörlig 2x4/4', action: 'Tavla bort 4 sekunder'},
-    { name: 'Fält Rörlig 2x4/4', action: 'Tavla fram 4 sekunder'},
-    { name: 'Fält Rörlig 2x4/4', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 2x4/4', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 2x4/4', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 2x4/4', action: 'VISITATION'},
+    { name: 'Fält Rörlig 2x4/4', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 2x4/4', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 2x4/4', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 2x4/4', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 2x4/4', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 2x4/4', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 2x4/4', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 2x4/4', action: 'Tavla fram 4 sekunder', start: 53, stop: 56},
+    { name: 'Fält Rörlig 2x4/4', action: 'Tavla bort 4 sekunder', start: 57, stop: 60},
+    { name: 'Fält Rörlig 2x4/4', action: 'Tavla fram 4 sekunder', start: 61, stop: 64},
+    { name: 'Fält Rörlig 2x4/4', action: 'Tavla bort', start: 65, stop: 66},
+    { name: 'Fält Rörlig 2x4/4', action: 'ELD UPPHÖR', start: 67, stop: 72},
+    { name: 'Fält Rörlig 2x4/4', action: 'PATRON UR, PROPPA VAPEN', start: 73, stop: 77},
+    { name: 'Fält Rörlig 2x4/4', action: 'VISITATION', start: 78, stop: 80},
     
-    { name: 'Fält Rörlig 2x3/3', action: 'LADDA'},
-    { name: 'Fält Rörlig 2x3/3', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 2x3/3', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 2x3/3', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 2x3/3', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 2x3/3', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 2x3/3', action: 'Tavla bort 3 sekunder'},
-    { name: 'Fält Rörlig 2x3/3', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 2x3/3', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 2x3/3', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 2x3/3', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 2x3/3', action: 'VISITATION'},
+    { name: 'Fält Rörlig 2x3/3', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 2x3/3', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 2x3/3', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 2x3/3', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 2x3/3', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 2x3/3', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 2x3/3', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 2x3/3', action: 'Tavla fram 3 sekunder', start: 53, stop: 55},
+    { name: 'Fält Rörlig 2x3/3', action: 'Tavla bort 3 sekunder', start: 56, stop: 58},
+    { name: 'Fält Rörlig 2x3/3', action: 'Tavla fram 3 sekunder', start: 59, stop: 61},
+    { name: 'Fält Rörlig 2x3/3', action: 'Tavla bort', start: 62, stop: 63},
+    { name: 'Fält Rörlig 2x3/3', action: 'ELD UPPHÖR', start: 64, stop: 69},
+    { name: 'Fält Rörlig 2x3/3', action: 'PATRON UR, PROPPA VAPEN', start: 70, stop: 74},
+    { name: 'Fält Rörlig 2x3/3', action: 'VISITATION', start: 75, stop: 77},
     
-    { name: 'Fält Rörlig 3x6/4', action: 'LADDA'},
-    { name: 'Fält Rörlig 3x6/4', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 3x6/4', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 3x6/4', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 3x6/4', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 3x6/4', action: 'Tavla fram 6 sekunder'},
-    { name: 'Fält Rörlig 3x6/4', action: 'Tavla bort 4 sekunder'},
-    { name: 'Fält Rörlig 3x6/4', action: 'Tavla fram 6 sekunder'},
-    { name: 'Fält Rörlig 3x6/4', action: 'Tavla bort 4 sekunder'},
-    { name: 'Fält Rörlig 3x6/4', action: 'Tavla fram 6 sekunder'},
-    { name: 'Fält Rörlig 3x6/4', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 3x6/4', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 3x6/4', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 3x6/4', action: 'VISITATION'},
+    { name: 'Fält Rörlig 3x6/4', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 3x6/4', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 3x6/4', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 3x6/4', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 3x6/4', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 3x6/4', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 3x6/4', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 3x6/4', action: 'Tavla fram 6 sekunder', start: 53, stop: 58},
+    { name: 'Fält Rörlig 3x6/4', action: 'Tavla bort 4 sekunder', start: 59, stop: 62},
+    { name: 'Fält Rörlig 3x6/4', action: 'Tavla fram 6 sekunder', start: 63, stop: 68},
+    { name: 'Fält Rörlig 3x6/4', action: 'Tavla bort 4 sekunder', start: 69, stop: 72},
+    { name: 'Fält Rörlig 3x6/4', action: 'Tavla fram 6 sekunder', start: 73, stop: 78},
+    { name: 'Fält Rörlig 3x6/4', action: 'Tavla bort', start: 79, stop: 80},
+    { name: 'Fält Rörlig 3x6/4', action: 'ELD UPPHÖR', start: 81, stop: 86},
+    { name: 'Fält Rörlig 3x6/4', action: 'PATRON UR, PROPPA VAPEN', start: 87, stop: 91},
+    { name: 'Fält Rörlig 3x6/4', action: 'VISITATION', start: 92, stop: 94},
     
-    { name: 'Fält Rörlig 3x4/4', action: 'LADDA'},
-    { name: 'Fält Rörlig 3x4/4', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 3x4/4', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 3x4/4', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 3x4/4', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 3x4/4', action: 'Tavla fram 4 sekunder'},
-    { name: 'Fält Rörlig 3x4/4', action: 'Tavla bort 4 sekunder'},
-    { name: 'Fält Rörlig 3x4/4', action: 'Tavla fram 4 sekunder'},
-    { name: 'Fält Rörlig 3x4/4', action: 'Tavla bort 4 sekunder'},
-    { name: 'Fält Rörlig 3x4/4', action: 'Tavla fram 4 sekunder'},
-    { name: 'Fält Rörlig 3x4/4', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 3x4/4', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 3x4/4', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 3x4/4', action: 'VISITATION'},
+    { name: 'Fält Rörlig 3x4/4', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 3x4/4', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 3x4/4', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 3x4/4', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 3x4/4', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 3x4/4', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 3x4/4', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 3x4/4', action: 'Tavla fram 4 sekunder', start: 53, stop: 56},
+    { name: 'Fält Rörlig 3x4/4', action: 'Tavla bort 4 sekunder', start: 57, stop: 60},
+    { name: 'Fält Rörlig 3x4/4', action: 'Tavla fram 4 sekunder', start: 61, stop: 64},
+    { name: 'Fält Rörlig 3x4/4', action: 'Tavla bort 4 sekunder', start: 65, stop: 68},
+    { name: 'Fält Rörlig 3x4/4', action: 'Tavla fram 4 sekunder', start: 69, stop: 72},
+    { name: 'Fält Rörlig 3x4/4', action: 'Tavla bort', start: 73, stop: 74},
+    { name: 'Fält Rörlig 3x4/4', action: 'ELD UPPHÖR', start: 75, stop: 80},
+    { name: 'Fält Rörlig 3x4/4', action: 'PATRON UR, PROPPA VAPEN', start: 81, stop: 85},
+    { name: 'Fält Rörlig 3x4/4', action: 'VISITATION', start: 86, stop: 88},
     
-    { name: 'Fält Rörlig 3x3/3', action: 'LADDA'},
-    { name: 'Fält Rörlig 3x3/3', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 3x3/3', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 3x3/3', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 3x3/3', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 3x3/3', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 3x3/3', action: 'Tavla bort 3 sekunder'},
-    { name: 'Fält Rörlig 3x3/3', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 3x3/3', action: 'Tavla bort 3 sekunder'},
-    { name: 'Fält Rörlig 3x3/3', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 3x3/3', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 3x3/3', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 3x3/3', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 3x3/3', action: 'VISITATION'},
+    { name: 'Fält Rörlig 3x3/3', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 3x3/3', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 3x3/3', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 3x3/3', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 3x3/3', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 3x3/3', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 3x3/3', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 3x3/3', action: 'Tavla fram 3 sekunder', start: 53, stop: 55},
+    { name: 'Fält Rörlig 3x3/3', action: 'Tavla bort 3 sekunder', start: 56, stop: 58},
+    { name: 'Fält Rörlig 3x3/3', action: 'Tavla fram 3 sekunder', start: 59, stop: 61},
+    { name: 'Fält Rörlig 3x3/3', action: 'Tavla bort 3 sekunder', start: 62, stop: 64},
+    { name: 'Fält Rörlig 3x3/3', action: 'Tavla fram 3 sekunder', start: 65, stop: 67},
+    { name: 'Fält Rörlig 3x3/3', action: 'Tavla bort', start: 68, stop: 69},
+    { name: 'Fält Rörlig 3x3/3', action: 'ELD UPPHÖR', start: 70, stop: 75},
+    { name: 'Fält Rörlig 3x3/3', action: 'PATRON UR, PROPPA VAPEN', start: 76, stop: 80},
+    { name: 'Fält Rörlig 3x3/3', action: 'VISITATION', start: 81, stop: 83},
     
-    { name: 'Fält Rörlig 3x3/2', action: 'LADDA'},
-    { name: 'Fält Rörlig 3x3/2', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 3x3/2', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 3x3/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 3x3/2', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 3x3/2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 3x3/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 3x3/2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 3x3/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 3x3/2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 3x3/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 3x3/2', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 3x3/2', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 3x3/2', action: 'VISITATION'},
+    { name: 'Fält Rörlig 3x3/2', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 3x3/2', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 3x3/2', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 3x3/2', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 3x3/2', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 3x3/2', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 3x3/2', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 3x3/2', action: 'Tavla fram 3 sekunder', start: 53, stop: 55},
+    { name: 'Fält Rörlig 3x3/2', action: 'Tavla bort 2 sekunder', start: 56, stop: 57},
+    { name: 'Fält Rörlig 3x3/2', action: 'Tavla fram 3 sekunder', start: 58, stop: 60},
+    { name: 'Fält Rörlig 3x3/2', action: 'Tavla bort 2 sekunder', start: 61, stop: 62},
+    { name: 'Fält Rörlig 3x3/2', action: 'Tavla fram 3 sekunder', start: 63, stop: 65},
+    { name: 'Fält Rörlig 3x3/2', action: 'Tavla bort', start: 66, stop: 67},
+    { name: 'Fält Rörlig 3x3/2', action: 'ELD UPPHÖR', start: 68, stop: 73},
+    { name: 'Fält Rörlig 3x3/2', action: 'PATRON UR, PROPPA VAPEN', start: 74, stop: 78},
+    { name: 'Fält Rörlig 3x3/2', action: 'VISITATION', start: 79, stop: 81},
     
-    { name: 'Fält Rörlig 3x2/2', action: 'LADDA'},
-    { name: 'Fält Rörlig 3x2/2', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 3x2/2', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 3x2/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 3x2/2', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 3x2/2', action: 'Tavla fram 2 sekunder'},
-    { name: 'Fält Rörlig 3x2/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 3x2/2', action: 'Tavla fram 2 sekunder'},
-    { name: 'Fält Rörlig 3x2/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 3x2/2', action: 'Tavla fram 2 sekunder'},
-    { name: 'Fält Rörlig 3x2/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 3x2/2', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 3x2/2', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 3x2/2', action: 'VISITATION'},
+    { name: 'Fält Rörlig 3x2/2', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 3x2/2', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 3x2/2', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 3x2/2', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 3x2/2', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 3x2/2', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 3x2/2', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 3x2/2', action: 'Tavla fram 2 sekunder', start: 53, stop: 54},
+    { name: 'Fält Rörlig 3x2/2', action: 'Tavla bort 2 sekunder', start: 55, stop: 56},
+    { name: 'Fält Rörlig 3x2/2', action: 'Tavla fram 2 sekunder', start: 57, stop: 58},
+    { name: 'Fält Rörlig 3x2/2', action: 'Tavla bort 2 sekunder', start: 59, stop: 60},
+    { name: 'Fält Rörlig 3x2/2', action: 'Tavla fram 2 sekunder', start: 61, stop: 62},
+    { name: 'Fält Rörlig 3x2/2', action: 'Tavla bort', start: 63, stop: 64},
+    { name: 'Fält Rörlig 3x2/2', action: 'ELD UPPHÖR', start: 65, stop: 70},
+    { name: 'Fält Rörlig 3x2/2', action: 'PATRON UR, PROPPA VAPEN', start: 71, stop: 75},
+    { name: 'Fält Rörlig 3x2/2', action: 'VISITATION', start: 76, stop: 78},
     
-    { name: 'Fält Rörlig 6x4/2', action: 'LADDA'},
-    { name: 'Fält Rörlig 6x4/2', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 6x4/2', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 6x4/2', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder'},
-    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 6x4/2', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 6x4/2', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 6x4/2', action: 'VISITATION'},
+    { name: 'Fält Rörlig 6x4/2', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 6x4/2', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 6x4/2', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 6x4/2', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 6x4/2', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 6x4/2', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 6x4/2', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder', start: 53, stop: 56},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort 2 sekunder', start: 57, stop: 58},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder', start: 59, stop: 62},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort 2 sekunder', start: 63, stop: 64},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder', start: 65, stop: 68},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort 2 sekunder', start: 69, stop: 70},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder', start: 71, stop: 74},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort 2 sekunder', start: 75, stop: 76},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder', start: 77, stop: 80},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort 2 sekunder', start: 81, stop: 82},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla fram 4 sekunder', start: 83, stop: 86},
+    { name: 'Fält Rörlig 6x4/2', action: 'Tavla bort', start: 87, stop: 88},
+    { name: 'Fält Rörlig 6x4/2', action: 'ELD UPPHÖR', start: 89, stop: 94},
+    { name: 'Fält Rörlig 6x4/2', action: 'PATRON UR, PROPPA VAPEN', start: 95, stop: 99},
+    { name: 'Fält Rörlig 6x4/2', action: 'VISITATION', start: 100, stop: 102},
     
-    { name: 'Fält Rörlig 6x3/2', action: 'LADDA'},
-    { name: 'Fält Rörlig 6x3/2', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 6x3/2', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 6x3/2', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder'},
-    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 6x3/2', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 6x3/2', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 6x3/2', action: 'VISITATION'},
+    { name: 'Fält Rörlig 6x3/2', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 6x3/2', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 6x3/2', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 6x3/2', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 6x3/2', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 6x3/2', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 6x3/2', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder', start: 53, stop: 55},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort 2 sekunder', start: 56, stop: 57},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder', start: 58, stop: 60},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort 2 sekunder', start: 61, stop: 62},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder', start: 63, stop: 65},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort 2 sekunder', start: 66, stop: 67},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder', start: 68, stop: 70},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort 2 sekunder', start: 71, stop: 72},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder', start: 73, stop: 75},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort 2 sekunder', start: 76, stop: 77},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla fram 3 sekunder', start: 78, stop: 80},
+    { name: 'Fält Rörlig 6x3/2', action: 'Tavla bort', start: 81, stop: 82},
+    { name: 'Fält Rörlig 6x3/2', action: 'ELD UPPHÖR', start: 83, stop: 88},
+    { name: 'Fält Rörlig 6x3/2', action: 'PATRON UR, PROPPA VAPEN', start: 89, stop: 93},
+    { name: 'Fält Rörlig 6x3/2', action: 'VISITATION', start: 94, stop: 96},
     
-    { name: 'Fält Rörlig 6x2/2', action: 'LADDA'},
-    { name: 'Fält Rörlig 6x2/2', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 6x2/2', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 6x2/2', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder'},
-    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 6x2/2', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 6x2/2', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 6x2/2', action: 'VISITATION'},
+    { name: 'Fält Rörlig 6x2/2', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 6x2/2', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 6x2/2', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 6x2/2', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 6x2/2', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 6x2/2', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 6x2/2', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder', start: 53, stop: 54},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort 2 sekunder', start: 55, stop: 56},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder', start: 57, stop: 58},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort 2 sekunder', start: 59, stop: 60},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder', start: 61, stop: 62},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort 2 sekunder', start: 63, stop: 64},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder', start: 65, stop: 66},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort 2 sekunder', start: 67, stop: 68},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder', start: 69, stop: 70},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort 2 sekunder', start: 71, stop: 72},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla fram 2 sekunder', start: 73, stop: 74},
+    { name: 'Fält Rörlig 6x2/2', action: 'Tavla bort', start: 75, stop: 76},
+    { name: 'Fält Rörlig 6x2/2', action: 'ELD UPPHÖR', start: 77, stop: 82},
+    { name: 'Fält Rörlig 6x2/2', action: 'PATRON UR, PROPPA VAPEN', start: 83, stop: 87},
+    { name: 'Fält Rörlig 6x2/2', action: 'VISITATION', start: 88, stop: 90},
     
-    { name: 'Fält Rörlig 6x1/2', action: 'LADDA'},
-    { name: 'Fält Rörlig 6x1/2', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 6x1/2', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 6x1/2', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort 2 sekunder'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 6x1/2', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 6x1/2', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 6x1/2', action: 'VISITATION'},
+    { name: 'Fält Rörlig 6x1/2', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 6x1/2', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 6x1/2', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 6x1/2', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 6x1/2', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 6x1/2', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 6x1/2', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder', start: 53, stop: 53},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort 2 sekunder', start: 54, stop: 55},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder', start: 56, stop: 56},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort 2 sekunder', start: 57, stop: 58},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder', start: 59, stop: 59},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort 2 sekunder', start: 60, stop: 61},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder', start: 62, stop: 62},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort 2 sekunder', start: 63, stop: 64},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder', start: 65, stop: 65},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort 2 sekunder', start: 66, stop: 67},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla fram 1 sekunder', start: 68, stop: 68},
+    { name: 'Fält Rörlig 6x1/2', action: 'Tavla bort', start: 69, stop: 70},
+    { name: 'Fält Rörlig 6x1/2', action: 'ELD UPPHÖR', start: 71, stop: 76},
+    { name: 'Fält Rörlig 6x1/2', action: 'PATRON UR, PROPPA VAPEN', start: 77, stop: 81},
+    { name: 'Fält Rörlig 6x1/2', action: 'VISITATION', start: 82, stop: 84},
     
-    { name: 'Fält Rörlig 6x1/1', action: 'LADDA'},
-    { name: 'Fält Rörlig 6x1/1', action: 'ALLA KLARA?'},
-    { name: 'Fält Rörlig 6x1/1', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 6x1/1', action: 'FÄRDIGA (3 sekunder innan tavla vänds fram)'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder'},
-    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort'},
-    { name: 'Fält Rörlig 6x1/1', action: 'ELD UPPHÖR'},
-    { name: 'Fält Rörlig 6x1/1', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Rörlig 6x1/1', action: 'VISITATION'},
+    { name: 'Fält Rörlig 6x1/1', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Rörlig 6x1/1', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Rörlig 6x1/1', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Rörlig 6x1/1', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Rörlig 6x1/1', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Rörlig 6x1/1', action: 'FÄRDIGA', start: 49, stop: 49},
+    { name: 'Fält Rörlig 6x1/1', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder', start: 53, stop: 53},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort 1 sekunder', start: 54, stop: 54},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder', start: 55, stop: 55},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort 1 sekunder', start: 56, stop: 56},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder', start: 57, stop: 57},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort 1 sekunder', start: 58, stop: 58},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder', start: 59, stop: 59},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort 1 sekunder', start: 60, stop: 60},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder', start: 61, stop: 61},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort 1 sekunder', start: 62, stop: 62},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla fram 1 sekunder', start: 63, stop: 63},
+    { name: 'Fält Rörlig 6x1/1', action: 'Tavla bort', start: 64, stop: 65},
+    { name: 'Fält Rörlig 6x1/1', action: 'ELD UPPHÖR', start: 66, stop: 71},
+    { name: 'Fält Rörlig 6x1/1', action: 'PATRON UR, PROPPA VAPEN', start: 72, stop: 76},
+    { name: 'Fält Rörlig 6x1/1', action: 'VISITATION', start: 77, stop: 79},
     
     //FÄLT FASTA MÅL
-    { name: 'Fält Fast - 16 sek', action: 'LADDA'},
-    { name: 'Fält Fast - 16 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Fast - 16 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Fast - 16 sek', action: 'FÄRDIGA (3 sekunder innan ELD)'},
-    { name: 'Fält Fast - 16 sek', action: 'ELD'},
-    { name: 'Fält Fast - 16 sek', action: 'Fördröjning 13 sekunder'},
-    { name: 'Fält Fast - 16 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Fast - 16 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Fast - 16 sek', action: 'VISITATION'},
+    { name: 'Fält Fast - 16 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Fast - 16 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Fast - 16 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Fast - 16 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Fast - 16 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Fast - 16 sek', action: 'FÄRDIGA (3 sekunder innan ELD)', start: 49, stop: 49},
+    { name: 'Fält Fast - 16 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Fast - 16 sek', action: 'ELD', start: 53, stop: 53},
+    { name: 'Fält Fast - 16 sek', action: 'Fördröjning 13 sekunder', start: 54, stop: 66},
+    { name: 'Fält Fast - 16 sek', action: 'ELD UPPHÖR (Utdraget under 3 sek)', start: 67, stop: 70},
+    { name: 'Fält Fast - 16 sek', action: 'PATRON UR, PROPPA VAPEN', start: 71, stop: 75},
+    { name: 'Fält Fast - 16 sek', action: 'VISITATION', start: 76, stop: 78},
     
-    { name: 'Fält Fast - 14 sek', action: 'LADDA'},
-    { name: 'Fält Fast - 14 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Fast - 14 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Fast - 14 sek', action: 'FÄRDIGA (3 sekunder innan ELD)'},
-    { name: 'Fält Fast - 14 sek', action: 'ELD'},
-    { name: 'Fält Fast - 14 sek', action: 'Fördröjning 11 sekunder'},
-    { name: 'Fält Fast - 14 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Fast - 14 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Fast - 14 sek', action: 'VISITATION'},
+    { name: 'Fält Fast - 14 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Fast - 14 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Fast - 14 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Fast - 14 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Fast - 14 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Fast - 14 sek', action: 'FÄRDIGA (3 sekunder innan ELD)', start: 49, stop: 49},
+    { name: 'Fält Fast - 14 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Fast - 14 sek', action: 'ELD', start: 53, stop: 53},
+    { name: 'Fält Fast - 14 sek', action: 'Fördröjning 11 sekunder', start: 54, stop: 64},
+    { name: 'Fält Fast - 14 sek', action: 'ELD UPPHÖR (Utdraget under 3 sek)', start: 65, stop: 68},
+    { name: 'Fält Fast - 14 sek', action: 'PATRON UR, PROPPA VAPEN', start: 69, stop: 73},
+    { name: 'Fält Fast - 14 sek', action: 'VISITATION', start: 74, stop: 76},
     
-    { name: 'Fält Fast - 12 sek', action: 'LADDA'},
-    { name: 'Fält Fast - 12 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Fast - 12 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Fast - 12 sek', action: 'FÄRDIGA (3 sekunder innan ELD)'},
-    { name: 'Fält Fast - 12 sek', action: 'ELD'},
-    { name: 'Fält Fast - 12 sek', action: 'Fördröjning 9 sekunder'},
-    { name: 'Fält Fast - 12 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Fast - 12 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Fast - 12 sek', action: 'VISITATION'},
+    { name: 'Fält Fast - 12 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Fast - 12 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Fast - 12 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Fast - 12 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Fast - 12 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Fast - 12 sek', action: 'FÄRDIGA (3 sekunder innan ELD)', start: 49, stop: 49},
+    { name: 'Fält Fast - 12 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Fast - 12 sek', action: 'ELD', start: 53, stop: 53},
+    { name: 'Fält Fast - 12 sek', action: 'Fördröjning 9 sekunder', start: 54, stop: 62},
+    { name: 'Fält Fast - 12 sek', action: 'ELD UPPHÖR (Utdraget under 3 sek)', start: 63, stop: 66},
+    { name: 'Fält Fast - 12 sek', action: 'PATRON UR, PROPPA VAPEN', start: 67, stop: 71},
+    { name: 'Fält Fast - 12 sek', action: 'VISITATION', start: 72, stop: 74},
     
-    { name: 'Fält Fast - 10 sek', action: 'LADDA'},
-    { name: 'Fält Fast - 10 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Fast - 10 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Fast - 10 sek', action: 'FÄRDIGA (3 sekunder innan ELD)'},
-    { name: 'Fält Fast - 10 sek', action: 'ELD'},
-    { name: 'Fält Fast - 10 sek', action: 'Fördröjning 7 sekunder'},
-    { name: 'Fält Fast - 10 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Fast - 10 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Fast - 10 sek', action: 'VISITATION'},
+    { name: 'Fält Fast - 10 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Fast - 10 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Fast - 10 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Fast - 10 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Fast - 10 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Fast - 10 sek', action: 'FÄRDIGA (3 sekunder innan ELD)', start: 49, stop: 49},
+    { name: 'Fält Fast - 10 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Fast - 10 sek', action: 'ELD', start: 53, stop: 53},
+    { name: 'Fält Fast - 10 sek', action: 'Fördröjning 7 sekunder', start: 54, stop: 60},
+    { name: 'Fält Fast - 10 sek', action: 'ELD UPPHÖR (Utdraget under 3 sek)', start: 61, stop: 64},
+    { name: 'Fält Fast - 10 sek', action: 'PATRON UR, PROPPA VAPEN', start: 65, stop: 69},
+    { name: 'Fält Fast - 10 sek', action: 'VISITATION', start: 70, stop: 72},
     
-    { name: 'Fält Fast - 8 sek', action: 'LADDA'},
-    { name: 'Fält Fast - 8 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Fast - 8 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Fast - 8 sek', action: 'FÄRDIGA (3 sekunder innan ELD'},
-    { name: 'Fält Fast - 8 sek', action: 'ELD'},
-    { name: 'Fält Fast - 8 sek', action: 'Fördröjning 5 sekunder'},
-    { name: 'Fält Fast - 8 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Fast - 8 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Fast - 8 sek', action: 'VISITATION'},
+    { name: 'Fält Fast - 8 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Fast - 8 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Fast - 8 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Fast - 8 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Fast - 8 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Fast - 8 sek', action: 'FÄRDIGA (3 sekunder innan ELD', start: 49, stop: 49},
+    { name: 'Fält Fast - 8 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Fast - 8 sek', action: 'ELD', start: 53, stop: 53},
+    { name: 'Fält Fast - 8 sek', action: 'Fördröjning 5 sekunder', start: 54, stop: 58},
+    { name: 'Fält Fast - 8 sek', action: 'ELD UPPHÖR (Utdraget under 3 sek)', start: 59, stop: 62},
+    { name: 'Fält Fast - 8 sek', action: 'PATRON UR, PROPPA VAPEN', start: 63, stop: 67},
+    { name: 'Fält Fast - 8 sek', action: 'VISITATION', start: 68, stop: 70},
     
-    { name: 'Fält Fast - 6 sek', action: 'LADDA'},
-    { name: 'Fält Fast - 6 sek', action: 'ALLA KLARA?'},
-    { name: 'Fält Fast - 6 sek', action: '10 SEKUNDER KVAR'},
-    { name: 'Fält Fast - 6 sek', action: 'FÄRDIGA (3 sekunder innan ELD)'},
-    { name: 'Fält Fast - 6 sek', action: 'ELD'},
-    { name: 'Fält Fast - 6 sek', action: 'Fördröjning 3 sekunder'},
-    { name: 'Fält Fast - 6 sek', action: 'ELD UPPHÖR'},
-    { name: 'Fält Fast - 6 sek', action: 'PATRON UR, PROPPA VAPEN'},
-    { name: 'Fält Fast - 6 sek', action: 'VISITATION'},
+    { name: 'Fält Fast - 6 sek', action: 'LADDA', start: 1, stop: 3},
+    { name: 'Fält Fast - 6 sek', action: 'Fördröjning 30 sekunder', start: 4, stop: 33},
+    { name: 'Fält Fast - 6 sek', action: 'ALLA KLARA?', start: 34, stop: 35},
+    { name: 'Fält Fast - 6 sek', action: '10 SEKUNDER KVAR', start: 36, stop: 41},
+    { name: 'Fält Fast - 6 sek', action: 'Fördröjning 7 sekunder', start: 42, stop: 48},
+    { name: 'Fält Fast - 6 sek', action: 'FÄRDIGA (3 sekunder innan ELD)', start: 49, stop: 49},
+    { name: 'Fält Fast - 6 sek', action: 'Fördröjning 3 sekunder', start: 50, stop: 52},
+    { name: 'Fält Fast - 6 sek', action: 'ELD', start: 53, stop: 53},
+    { name: 'Fält Fast - 6 sek', action: 'Fördröjning 3 sekunder', start: 54, stop: 56},
+    { name: 'Fält Fast - 6 sek', action: 'ELD UPPHÖR (Utdraget under 3 sek)', start: 57, stop: 60},
+    { name: 'Fält Fast - 6 sek', action: 'PATRON UR, PROPPA VAPEN', start: 61, stop: 65},
+    { name: 'Fält Fast - 6 sek', action: 'VISITATION', start: 66, stop: 68},
     
 ];
 
