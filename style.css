@@ -1,47 +1,48 @@
 /*  T1 Gateway  */
-/*  Ver 4.0  */
 
 html {
     font-family: Futura, Arial, Helvetica, sans-serif;
     display: inline-block;
     text-align: center;
-  }
-  h1 {
+}
+
+h1 {
     font-size: 2.5rem;
     color: white;
-  }
-  p {
+}
+
+p {
     font-size: 1.2rem;
-  }
-  .topnav {
+}
+
+.topnav {
     overflow: hidden;
     background-color: #FFFFFF;
-  }
+}
 
-  body {
+body {
     margin: 0;
-  }
-  .content {
+    background-color: white;
+}
+
+.content {
     padding: 20px;
-   
- 
-  }
-  .card-grid {
-    max-width: 700px;
+}
+
+.card-grid {
+    max-width: 800px;
     margin: 0 auto;
     display: grid;
     grid-gap: 2rem;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-     
-      
-  }
-  .card {
+    grid-template-rows: auto;
+}
+
+.card {
     background-color: white;
     box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
-      
-      
-    
-  }
+    justify-items: center;
+}
 
 input.button-add {
     background-image: url(target.png); /* 16px x 16px */
@@ -54,30 +55,31 @@ input.button-add {
     padding-left: 16px;     /* make text start to the right of the image */
     vertical-align: middle; /* align the text vertically centered */
 }
-  .card-title {
-    padding: 15px;
-    font-size: 2.2rem;
+
+.card-title {
+    padding: 5px;
+    font-size: 2.0rem;
     font-weight: bold;
     color: #034078
-  }
+}
 
-  .version {
+.version {
     font-size: 1rem;
     color: #034078;
     padding: 15px;
-  }
+}
 
-  .state {
+.state {
     font-size: 1.2rem;
     color:#1282A2;
-  }
+}
 
-    .timer {
+.timer {
     font-size: 5.0rem;
     color:#034078;
-  }
+}
 
-    /* Customize the label (the container) */
+/* Customize the label (the container) */
 .container {
   display: inline-block;
   position: relative;
@@ -147,13 +149,13 @@ input.button-add {
 
 
 
-    .programTimer {
+.programTimer {
     font-size: 3.0rem;
     color:#034078;
     margin: 0 auto;
-  }
+}
 
-  .slider {
+.slider {
     -webkit-appearance: none;
     margin: 0 auto;
     width: 80%;
@@ -161,8 +163,9 @@ input.button-add {
     border-radius: 10px;
     background: #D3D3D3;
     outline: none;
-  }
-  .slider::-webkit-slider-thumb {
+}
+
+.slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 25px;
@@ -170,22 +173,22 @@ input.button-add {
     border-radius: 50%;
     background: #808080;
     cursor: pointer;
-  }
-  .slider::-moz-range-thumb {
+}
+
+.slider::-moz-range-thumb {
     width: 30px;
     height: 30px;
     border-radius: 50% ;
     background: #32612D;
     cursor: pointer;
-  }
-  .switch {
+}
+
+.switch {
     padding-left: 5%;
     padding-right: 5%;
-  }
+}
 
-
-
-  .buttonRed {
+.buttonRed {
   position: relative;
   background-color: red;
   font-family: Futura, Arial, Helvetica, sans-serif;
@@ -200,12 +203,9 @@ input.button-add {
   overflow: hidden;
   cursor: pointer;
   border-radius: 4px;
+}
 
- }
-
-
-
-  .buttonRed:after {
+.buttonRed:after {
   content: "";
   background: #f1f1f1;
   display: block;
@@ -217,7 +217,8 @@ input.button-add {
   opacity: 0;
   transition: all 0.8s
 }
-  .button {
+
+.button {
   position: relative;
   background-color: #32612D;
   font-family: Futura, Arial, Helvetica, sans-serif;
@@ -234,7 +235,7 @@ input.button-add {
   border-radius: 4px;
 }
 
-  .button:after {
+.button:after {
   content: "";
   background: #f1f1f1;
   display: block;
@@ -247,7 +248,7 @@ input.button-add {
   transition: all 0.8s
 }
 
-  .buttonSmall {
+.buttonSmall {
   position: relative;
   background-color: #32612D;
   font-family: Futura, Arial, Helvetica, sans-serif;
@@ -264,7 +265,7 @@ input.button-add {
   border-radius: 4px;
 }
 
-  .buttonSmall:after {
+.buttonSmall:after {
   content: "";
   background: #f1f1f1;
   display: block;
@@ -284,66 +285,34 @@ input.button-add {
   transition: 0s
 }
 
-   .programs {
+.programs {
     background-color: #FFFFFF; 
     font-size: 1.0rem;
     color: #1282A2
     width: 90%;   
     text-align: center;
-    }
+}
 
-    .programsTable {
+.programsTable {
     margin: auto;
     text-align: left;
     font-size: 1.1rem;
-    color: #034078;  
-    }
+    color: #1282A2;  
+}
 
 
-    .programsTable, tr, td {
-        display: flex;
-        height: 100%;
-        align-items: center;
-        padding:2px;
-        padding-left: 5px;
-        padding-right: 5px;
-    }
+.programsTable, tr, td {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    padding:2px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+progress {
+    width: 80%;
+    height: 22px;
+}
 
 
-    .loader {
-      border: 4px solid #f3f3f3;
-      border-radius: 50%;
-      border-top: 4px solid #339933;
-      width: 30px;
-      height: 30px;
-      -webkit-animation: spin 2s linear infinite; /* Safari */
-      animation: spin 2s linear infinite;
-      margin: auto;
-      margin-top: 20px;
-    display: none;
-    
-    }
-
-    .hydraulLoader {
-      border: 4px solid #f3f3f3;
-      border-radius: 50%;
-      border-top: 4px solid #339933;
-      width: 20px;
-      height: 20px;
-      -webkit-animation: spin 2s linear infinite; /* Safari */
-      animation: spin 2s linear infinite;
-      margin: auto;
-      margin-top: 20px;
-    }
-
-    progress {
-      
-      width: 80%;
-      height: 22px;
-     
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
