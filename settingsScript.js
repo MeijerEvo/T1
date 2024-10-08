@@ -5,13 +5,11 @@ var gateway = `ws://${window.location.hostname}/ws`;
 var websocket;
 window.addEventListener('load', onload);
 
-var illum = new Boolean(false);
 var pump = new Boolean(false);
 var compressor = new Boolean(false);
 var timer = new Boolean(false);
 var leader = new Boolean(false); //False = Member, true = Leader
 var version = new String();
-var workMode = 0;
 
 //Program running flags
 var program = new Boolean(false);
@@ -146,7 +144,7 @@ function onMessage(event) {
                 //Pump is off
                 pump = false;
                 document.getElementById("pumpStartStopButton").value = "STARTA";
-                document.getElementById("pumpStartStopButton").style.backgroundColor = '#F78702'; 
+                document.getElementById("pumpStartStopButton").style.backgroundColor = '#32612D'; 
                 
                 pumpMaxTimer = false;
                 
@@ -158,21 +156,7 @@ function onMessage(event) {
         }  
         
         
-        //Illuminaton
-        if (key == "illum") {
-            //Illumination button
-            if (myObj[key] > 0)  {
-                //Illumination is on
-                illum = true;
-                document.getElementById("illuminationStartStopButton").value = "STOPPA";
-                document.getElementById("illuminationStartStopButton").style.backgroundColor = 'Red';  
-            } else {
-                //Illumination is off
-                illum = false;
-                document.getElementById("illuminationStartStopButton").value = "STARTA";
-                document.getElementById("illuminationStartStopButton").style.backgroundColor = '#F78702'; 
-            }
-        }  
+    
          
         
         //Network
@@ -187,7 +171,7 @@ function onMessage(event) {
                 //Member
                 leader = false;
                 document.getElementById("network").value = "Aktivera LEADER";
-                document.getElementById("network").style.backgroundColor = '#F78702';
+                document.getElementById("network").style.backgroundColor = '#32612D';
             }
         }  
         
@@ -208,6 +192,7 @@ function onMessage(event) {
         }  
         
         //Work mode
+        /*
         if (key == "workMode") {
             //Work mode
             if (myObj[key] == 0) {
@@ -217,7 +202,6 @@ function onMessage(event) {
                 document.getElementById("frontButton").value = "FRAM";
                 document.getElementById("rearButton").value = "BORT";
                 document.getElementById("pumpStartStopButton").disabled = false;
-                document.getElementById("lightsOff").style.visibility = 'hidden';
                 document.getElementById("hydraulPumpText").innerHTML = "Hydraulpump";
                 
                 
@@ -230,7 +214,6 @@ function onMessage(event) {
                 document.getElementById("frontButton").value = "FRAM";
                 document.getElementById("rearButton").value = "BORT";
                 document.getElementById("pumpStartStopButton").disabled = true;
-                document.getElementById("lightsOff").style.visibility = 'hidden';
                 document.getElementById("hydraulPumpText").innerHTML = "Används ej";
             }
             
@@ -241,13 +224,13 @@ function onMessage(event) {
                 document.getElementById("frontButton").value = "GRÖNT";
                 document.getElementById("rearButton").value = "RÖTT";
                 document.getElementById("pumpStartStopButton").disabled = true;
-                document.getElementById("lightsOff").style.visibility = 'visible';
                 document.getElementById("hydraulPumpText").innerHTML = "Används ej";
             }
             
             
              
         } 
+        */
         
         
         
@@ -264,11 +247,6 @@ function pumpStartStop() {
 
 
 
-function illumStartStop() {
-    //Illumination
-    if (illum == true) { websocket.send("illumStop"); }
-    if (illum == false) { websocket.send("illumStart"); }
-}
 
 function lane1Checked() {
     //At least one lane must be checked
@@ -303,7 +281,7 @@ function front() {
     } else {
         
         //Check if pump is active
-        if (pump == false && workMode == 0) {
+        if (pump == false) {
             alert("Starta hydraulpumpen innan vridning av vändställ");
         } else {
 
@@ -334,7 +312,7 @@ function rear() {
     } else {
     
         //Check if pump is active
-        if (pump == false && workMode == 0) {
+        if (pump == false) {
             alert("Starta hydraulpumpen innan vridning av vändställ");
         } else {
 
@@ -408,7 +386,7 @@ function SWUpdate() {
     //SW update
     
     //Ask user
-    if (confirm("Vill du uppdatera mjukvaran i T1 Gateway? Det måste finnas en WIFI-anslutningspunkt med internetanslutning i närheten av T1 Gateway. Efter att ha valt 'OK' kommer T1 Gateway bekräfta genom att tända upp alla tre lysdioderna på frontpanelen. Detta gränssnitt kommer att sluta att svara. Gå sedan till webläsaren och ange '192.168.4.1:100' för att nå uppdateringssidan. Tid för uppdateringen är under 5 minuter.")) {
+    if (confirm("Vill du uppdatera mjukvaran i T2 Gateway? Det måste finnas en WIFI-anslutningspunkt med internetanslutning i närheten av T2 Gateway. Efter att ha valt 'OK' kommer T2 Gateway bekräfta genom att tända statusdiod med blått sken. Detta gränssnitt kommer att sluta att svara. Gå sedan till webläsaren och ange '192.168.4.1:100' för att nå uppdateringssidan. Tid för uppdateringen är under 5 minuter.")) {
         
         //Update
         websocket.send("SWUpdate");
@@ -432,10 +410,9 @@ if (confirm("Vill du spela upp klubbintroduktion?")) {
     } 
 }
 
-function lightsOff() {
-    //Reset lights
-    websocket.send("lightsOff");
-}   
+
+
+   
 
 
 

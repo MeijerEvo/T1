@@ -172,7 +172,7 @@ function front() {
     } else {
         
         //Check if pump is active
-        if (pump == false && workMode == 0) {
+        if (pump == false) {
             alert("Starta hydraulpumpen innan vridning av vändställ");
         } else {
 
@@ -203,7 +203,7 @@ function rear() {
     } else {
     
         //Check if pump is active
-        if (pump == false && workMode == 0) {
+        if (pump == false) {
             alert("Starta hydraulpumpen innan vridning av vändställ");
         } else {
 
@@ -240,30 +240,27 @@ function onMessage(event) {
     for (var i = 0; i < keys.length; i++){
         var key = keys[i];
 
-
+        //Program length
+        if (key == "programLength") {
+            //Sätt max
+            progressValue = myObj[key];
+            const progress = document.getElementById("programProgress");
+            progress.max = progressValue;
+        }
+        
         
         //Program
-        if (key == "program") {
+        if (key == "programPos") {
             //Program
             if (myObj[key] > 0)  {
                 //Program running
-                
-                //Set value to progress bar just first time
-                if (program == false) { 
-                    progressValue = myObj[key];
-                    const progress = document.getElementById("programProgress");
-                    progress.max = progressValue;//100;
-                    
-                  
-                   
-                }
 
                 //Increase slider
                 const progress = document.getElementById("programProgress");
-                progress.value = (progressValue - myObj[key]+1);
+                progress.value = myObj[key];
+        
                 
-                
-                document.getElementById("programTimerTime").innerHTML = (progressValue - myObj[key]+1);
+                document.getElementById("programTimerTime").innerHTML = myObj[key];
                 
                 
 
@@ -297,7 +294,7 @@ function onMessage(event) {
                 document.getElementById("programTimerTime").innerHTML = 0;
                 
                 document.getElementById("programStartStopButton").value = "STARTA PROGRAM";
-                document.getElementById("programStartStopButton").style.backgroundColor = '#F78702';
+                document.getElementById("programStartStopButton").style.backgroundColor = '#32612D';
                 
                 //Reset progress bar
                 const progress = document.getElementById("programProgress");
@@ -338,27 +335,7 @@ function onMessage(event) {
             }   
         }
         
-          //Work mode
-        if (key == "workMode") {
-            //Work mode
-            if (myObj[key] == 0) {
-                //Hydraulic
-                workMode = 0;           
-            }
-            
-            if (myObj[key] == 1) {
-                //Pnenumatic
-                workMode = 1;
-            }
-            
-            if (myObj[key] == 2) {
-                //Lights
-                workMode = 2;
-           }
-            
-            
-             
-        } 
+ 
 
         
         

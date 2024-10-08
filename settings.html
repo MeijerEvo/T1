@@ -24,10 +24,7 @@
                        <progress id="pumpRuntime" value="0" max="900"> 0% </progress>
                    </p> 
                 
-                <p class="card-title">Belysning</p>
-                <p class="switch">
-                    <input type="button" class="button" value="START" onclick="illumStartStop()" id="illuminationStartStopButton">
-                </p> 
+             
                 <p class="card-title" id="turnType" >Vändställ</p>
                 <p class="switch">
                     <input type="button" class="button" onclick="front()" value="FRAM" id="frontButton">
@@ -35,9 +32,7 @@
                   <p class="switch">
                     <input type="button" class="button" onclick="rear()" value="BORT" id="rearButton">
                 </p>  
-                <p class="switch">
-                    <input type="button" class="button" onclick="lightsOff()" value="SLÄCK" id="lightsOff">
-                </p>  
+            
                 <p class="version" id="totalTurns" ></p>
                 
                 <br><br />
@@ -48,10 +43,15 @@
                 <p class="card-title">Bana</p>
                 
                 <form>
-                  <input type="checkbox" class="largerCheckbox" id="lane1" onclick="lane1Checked()" name="lane1" checked="true">
-                  <label for="lane1" class="switch" > Bana 1</label>
-                  <input type="checkbox" class="largerCheckbox" id="lane2" onclick="lane2Checked()" name="lane2" checked="true">
-                  <label for="lane2" class="switch" > Bana 2</label><br>
+                    <label class="container">Bana vänster 
+                    <input type="checkbox" id="lane1" onclick="lane1Checked()">
+                    <span class="checkmark"></span>
+                    </label>
+
+                    <label class="container"> Bana höger 
+                    <input type="checkbox" id="lane2" onclick="lane2Checked()">
+                    <span class="checkmark"></span>
+                    </label>
                 </form>
                   
                 <br><br />
@@ -63,7 +63,7 @@
                 </p>  
               
                 <p class="card-title">Övrigt</p>
-                <p class="switch">
+                    <p class="switch">
                     <input type="button" class="button" id="intro" onclick="intro()" value="Spela klubbintro">
                 </p> 
                 
@@ -74,11 +74,12 @@
                 <p class="switch">
                     <input type="button" class="button" id="SWUpdate" onclick="SWUpdate()" value="Uppdatera mjukvara">
                 </p> 
-                <br><br />
+                
+                 <p class="switch"><input type="button" class="buttonSmall" value="HEM" onclick="location.href='index.html'"></p> 
                 
             </div> 
         </div>
-        <p class="switch"><input type="button" class="buttonGreen" value="HEM" onclick="location.href='index.html'"></p> 
+       
     </div>
     <p class="version" id="versionText" ></p>
     <br><br />

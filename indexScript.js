@@ -96,16 +96,16 @@ function onMessage(event) {
             //Network. 0 > leader, 0 = Member
             if (myObj[key] > 0)  {
                 //Leader
-                document.getElementById("networkText").innerHTML = "LEADER";
+                document.getElementById("networkText").innerHTML = "Nätverk: LEADER";
             } else {
                 //Member
-                document.getElementById("networkText").innerHTML = "MEMBER";
+                document.getElementById("networkText").innerHTML = "Nätverk: MEMBER";
             }
         } 
         
         //Number of connected clients
         if (key == "clients") {
-            document.getElementById("clients").innerHTML = "Anslutna enheter: " + myObj[key];
+            document.getElementById("clients").innerHTML = "Anslutna enheter: " + myObj[key] + " st";
         }
    }
 }
